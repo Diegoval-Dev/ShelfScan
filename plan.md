@@ -1,232 +1,251 @@
-# Plan de Trabajo — Sistema de Auditoría Visual de Lineales de Supermercado
+# Plan de Trabajo — ShelfScan
+### Sistema de Auditoría Visual de Lineales de Supermercado
 **Curso:** Visión por Computadora  
 **Grupo:** Diego Valenzuela · Daniel Dubón · Bianca Calderón  
 **Catedrático:** Alberto Suriano  
+**Versión:** 2.0 — Alcance ampliado a 3 integrantes
 
 ---
 
-## Resumen del Proyecto
+## Descripción del Proyecto
 
-Sistema que analiza fotos de estantes de supermercado para detectar automáticamente el estado del stock. A partir de una imagen, corrige la perspectiva con homografías, detecta productos y espacios vacíos con YOLOv8, clasifica por categoría con transfer learning sobre ResNet, y genera un reporte con métricas: porcentaje de quiebre, share of shelf por categoría y score general del lineal.
+Sistema que analiza fotos de estantes de supermercado para auditar automáticamente el estado del stock. A partir de imágenes tomadas con celular o cámara fija, el sistema ejecuta tres líneas de análisis paralelas:
+
+1. **Detección y clasificación** — YOLOv8 detecta productos y zonas vacías; ResNet clasifica por categoría mediante transfer learning
+2. **Verificación de planograma** — Homografía completa alinea la imagen real contra el planograma de referencia y calcula un score de cumplimiento mediante matching ORB/SIFT
+3. **Análisis temporal** — Secuencias de imágenes del mismo estante a distintas horas permiten detectar patrones de vaciado y predecir cuándo ocurrirá el próximo quiebre de stock
 
 ---
 
 ## Roles del Equipo
 
-| Integrante | Rol Principal |
+| Integrante | Módulo Principal |
 |---|---|
-| **Diego Valenzuela** | Detección de objetos — Dataset, YOLOv8, evaluación con mAP/IoU |
-| **Daniel Dubón** | Clasificación y matching — ResNet, transfer learning, ORB/SIFT |
-| **Bianca Calderón** | Geometría y reporte — Homografía, métricas finales, visualización |
-
-> Los roles son principales, no exclusivos. En cada entrega hay puntos de integración donde los tres trabajan juntos.
+| **Diego Valenzuela** | Detección — Dataset, YOLOv8, evaluación con mAP/IoU/NMS |
+| **Daniel Dubón** | Clasificación + Análisis temporal — ResNet, ORB/SIFT, predicción de quiebres |
+| **Bianca Calderón** | Geometría + Planograma — Homografía, score de cumplimiento, reporte final |
 
 ---
 
 ## Entrega 1 — 30 de abril de 2026
 
-**Objetivo:** Tener la base del proyecto funcionando: datos recolectados, pipeline de corrección de perspectiva operativo y primer modelo de detección entrenado aunque sea en versión preliminar.
+**Objetivo:** Infraestructura base lista. Datos recolectados, corrección de perspectiva funcionando, primer modelo de detección entrenado, y diseño del módulo de planograma definido.
 
 ---
 
 ### Diego Valenzuela — Detección
 
-**Semana 1 (23–27 abril)**
-- Definir las categorías de productos a detectar (8–12 clases: bebidas, lácteos, snacks, limpieza, etc.)
-- Ir a 1–2 tiendas locales (Walmart, La Torre, Paiz) y fotografiar estantes desde distintos ángulos y condiciones de luz — meta: 150–200 fotos propias
-- Descargar y explorar el dataset público SKU110K para complementar
-- Configurar entorno: Python, Ultralytics YOLOv8, CUDA si hay GPU disponible
+- Definir las 8–12 categorías de productos a detectar (bebidas, lácteos, snacks, limpieza, etc.)
+- Fotografiar estantes en 1–2 tiendas locales desde distintos ángulos y condiciones de luz — meta: 150–200 fotos propias
+- Descargar y explorar SKU110K como complemento
+- Anotar dataset en Roboflow (mínimo 100 imágenes)
+- Aplicar data augmentation: rotación, cambio de brillo, blur, flip horizontal
+- Configurar entorno: Python, Ultralytics YOLOv8, CUDA si disponible
+- Correr primera versión de entrenamiento YOLOv8 (versión preliminar)
 
-**Entregable al 30 de abril:**
-- Carpeta con dataset propio anotado (mínimo 100 imágenes en Roboflow)
-- Script de data augmentation aplicado (rotación, brillo, blur, flip)
-- Primera versión de YOLOv8 entrenada (aunque sea con pocas épocas) con reporte de mAP inicial
+**Entregables:**
+- Dataset propio anotado (100+ imágenes)
+- Script de augmentation aplicado
+- Primer modelo YOLOv8 con reporte de mAP inicial
 - README del entorno de entrenamiento
 
 ---
 
-### Daniel Dubón — Clasificación y Matching
+### Daniel Dubón — Clasificación + Análisis Temporal
 
-**Semana 1 (23–27 abril)**
-- Investigar y documentar arquitectura ResNet-50 para transfer learning en clasificación de categorías de productos
-- Preparar el subconjunto de imágenes clasificadas por categoría (usar parte del dataset de Diego)
-- Implementar pipeline base de fine-tuning con PyTorch o Keras: cargar ResNet preentrenado, congelar capas base, ajustar cabeza clasificadora
+- Investigar y documentar arquitectura ResNet-50 para transfer learning en clasificación de categorías
+- Preparar subconjunto de imágenes clasificadas por categoría (usando dataset de Diego)
+- Implementar pipeline base de fine-tuning: cargar ResNet preentrenado, congelar capas base, ajustar cabeza clasificadora
 - Primera prueba de entrenamiento con las categorías definidas
+- **Diseño del módulo temporal:** definir el esquema de recolección de secuencias (cuántas fotos, con qué intervalo, del mismo punto de cámara) y el formato de los datos temporales
 
-**Entregable al 30 de abril:**
+**Entregables:**
 - Notebook con pipeline de transfer learning funcionando
-- Reporte de accuracy en conjunto de validación (aunque sea con pocas clases todavía)
-- Investigación documentada sobre ORB vs SIFT para el matching de productos con imagen de referencia (qué se usará y por qué)
+- Reporte de accuracy en validación (versión inicial)
+- Documento de diseño del módulo temporal: esquema de datos, métricas a calcular, approach de predicción
 
 ---
 
-### Bianca Calderón — Geometría y Reporte
+### Bianca Calderón — Geometría + Planograma
 
-**Semana 1 (23–27 abril)**
-- Estudiar e implementar corrección de perspectiva usando OpenCV: `cv2.getPerspectiveTransform` y `cv2.warpPerspective`
-- Desarrollar la herramienta de selección de 4 puntos de referencia semi-asistida (click manual sobre la imagen para marcar esquinas del estante)
-- Probar la corrección sobre 10–15 fotos reales del dataset y documentar los resultados visualmente
-- Definir el formato del reporte final (qué métricas, cómo se visualizan)
+- Implementar corrección de perspectiva con OpenCV: `getPerspectiveTransform` y `warpPerspective`
+- Desarrollar herramienta de selección de 4 puntos semi-asistida (click manual sobre esquinas del estante)
+- Probar corrección sobre 10–15 fotos reales y documentar resultados
+- **Diseño del módulo de planograma:** definir qué es el planograma de referencia (imagen fotografiada en condiciones controladas), cómo se alinea con la imagen real, y qué métricas de cumplimiento se calcularán
+- Investigar approach de matching espacial ORB/SIFT para comparación planograma vs. realidad
 
-**Entregable al 30 de abril:**
+**Entregables:**
 - Script funcional de corrección de perspectiva con interfaz de selección de puntos
 - Galería de 10 imágenes antes/después de la corrección
-- Documento con el diseño del reporte final (mockup o esquema)
+- Documento de diseño del módulo de planograma: formato de referencia, pipeline de comparación, métricas propuestas
 
 ---
 
 ### Integración — Entrega 1
 
-- Los tres revisan juntos que el formato de salida de cada módulo sea compatible
-- Documento de 1–2 páginas con: descripción del dataset, decisiones de arquitectura tomadas y plan actualizado para las siguientes entregas
+- Verificar compatibilidad de formatos de salida entre módulos
+- Documento de 1–2 páginas: descripción del dataset, decisiones de arquitectura y diseño de los dos módulos nuevos
 
 ---
 
 ## Entrega 2 — 7 de mayo de 2026
 
-**Objetivo:** Pipeline completo de extremo a extremo funcionando: foto entra, reporte sale. No tiene que ser perfecto, pero tiene que ser funcional y medible.
+**Objetivo:** Pipeline completo de extremo a extremo funcionando. Los tres módulos integrados, medibles y con primeros resultados cuantitativos.
 
 ---
 
 ### Diego Valenzuela — Detección
 
-**Semana 2 (28 abril–7 mayo)**
-- Completar el entrenamiento de YOLOv8 con el dataset completo (dataset propio + SKU110K filtrado)
-- Aplicar NMS (Non-Maximum Suppression) para limpiar detecciones solapadas en zonas densas del estante
-- Evaluar el modelo con métricas formales: mAP@0.5, mAP@0.5:0.95, Precision, Recall por clase
-- Probar detección sobre imágenes corregidas (usar salida de Bianca como entrada)
-- Identificar clases con peor desempeño y aplicar estrategias de mejora (más data, augmentation específico)
+- Completar entrenamiento YOLOv8 con dataset completo (propio + SKU110K filtrado)
+- Implementar y ajustar NMS para limpiar detecciones solapadas en zonas densas
+- Evaluar con métricas formales: mAP@0.5, mAP@0.5:0.95, Precision, Recall por clase
+- Probar detección sobre imágenes corregidas (salida de Bianca como entrada)
+- Identificar clases con peor desempeño y aplicar mejoras
 
-**Entregable al 7 de mayo:**
+**Entregables:**
 - Modelo YOLOv8 entrenado y guardado (.pt)
 - Reporte de métricas por clase con análisis de errores
-- Script de inferencia que recibe imagen y devuelve bounding boxes con clase y confianza
+- Script de inferencia: imagen → bounding boxes con clase y confianza
 
 ---
 
-### Daniel Dubón — Clasificación y Matching
+### Daniel Dubón — Clasificación + Análisis Temporal
 
-**Semana 2 (28 abril–7 mayo)**
-- Completar fine-tuning de ResNet con todas las categorías definidas
-- Integrar el clasificador con las detecciones de YOLO: cada bounding box detectado pasa por ResNet para obtener la categoría
-- Implementar matching con imagen de referencia usando ORB: extraer descriptores de la imagen actual y de la referencia, calcular distancia entre descriptores para estimar similitud por zona
-- Evaluar clasificación: accuracy, matriz de confusión por categoría
+- Completar fine-tuning de ResNet con todas las categorías
+- Integrar clasificador con detecciones de YOLO: cada bounding box pasa por ResNet
+- **Módulo temporal v1:** recolectar secuencia de imágenes del mismo estante en distintos momentos del día (mínimo 3 momentos distintos), correr el detector sobre cada imagen y construir la serie temporal de ocupación por categoría
+- Implementar detección de patrones básicos: qué categorías se vacían más rápido, en qué franja horaria
+- Primera versión de predicción simple: regresión lineal o promedio móvil sobre la serie temporal para estimar cuándo habrá quiebre
 
-**Entregable al 7 de mayo:**
+**Entregables:**
 - Pipeline integrado: imagen → detección → clasificación por categoría
-- Notebook con evaluación del clasificador (accuracy top-1, matriz de confusión)
-- Script de matching ORB con imagen de referencia funcionando sobre al menos 5 pares de imágenes
+- Evaluación del clasificador: accuracy top-1, matriz de confusión
+- Módulo temporal funcionando con al menos una secuencia real de datos
+- Gráfica de ocupación por categoría a lo largo del tiempo
 
 ---
 
-### Bianca Calderón — Geometría y Reporte
+### Bianca Calderón — Geometría + Planograma
 
-**Semana 2 (28 abril–7 mayo)**
-- Integrar la corrección de perspectiva con la salida de detección y clasificación
-- Implementar el cálculo de las tres métricas principales:
-  - **% de quiebre:** (área de bounding boxes vacíos) / (área total del estante)
-  - **Share of shelf:** (área por categoría) / (área total detectada con productos)
-  - **Score general:** función que combina ambas métricas en un valor de 0–100
-- Generar el reporte visual: imagen anotada con bounding boxes coloreados por categoría + tabla de métricas superpuesta o adjunta
+- Integrar corrección de perspectiva con salida de detección y clasificación
+- **Módulo de planograma v1:** tomar imagen de referencia del estante en condiciones controladas, alinearla con imagen real usando homografía completa, calcular matching ORB/SIFT entre ambas para identificar correspondencias por zona
+- Calcular score de cumplimiento: qué porcentaje de zonas tienen el producto esperado según el planograma
+- Implementar cálculo de las métricas base: % de quiebre, share of shelf por categoría, score general
+- Generar reporte visual integrado con las tres líneas de análisis
 
-**Entregable al 7 de mayo:**
-- Script de cálculo de métricas integrado con las detecciones
-- Función de generación de reporte visual (imagen anotada exportada como .png o .jpg)
-- 5 reportes de ejemplo generados sobre imágenes reales
+**Entregables:**
+- Módulo de planograma funcionando con al menos 5 pares imagen real / planograma
+- Script de cálculo de métricas integrado
+- 5 reportes de ejemplo generados sobre imágenes reales con los tres ejes de análisis
 
 ---
 
 ### Integración — Entrega 2
 
-- Correr el pipeline completo de extremo a extremo sobre un set de 20 imágenes de prueba
-- Documento de avance: métricas obtenidas hasta ahora, problemas encontrados, ajustes al plan
-- Verificar que los tres módulos (detección, clasificación, reporte) estén comunicados correctamente
+- Correr pipeline completo sobre 20 imágenes de prueba
+- Documento de avance: métricas obtenidas, problemas encontrados, ajustes al plan
+- Verificar integración entre los tres módulos
 
 ---
 
-## Entrega 3 (Final) — 21 de mayo de 2026
+## Entrega Final — 21 de mayo de 2026
 
-**Objetivo:** Sistema pulido, evaluado formalmente, con análisis de resultados y presentación lista.
+**Objetivo:** Sistema pulido, validado formalmente con ground truth, análisis de resultados completo y presentación lista.
 
 ---
 
 ### Diego Valenzuela — Detección
 
-**Semanas 3–4 (8–21 mayo)**
-- Iteración final del modelo: ajustar hiperparámetros (learning rate, batch size, épocas) según resultados de la entrega 2
-- Correr evaluación formal sobre el conjunto de test (nunca visto durante entrenamiento)
+- Iteración final del modelo: ajuste de hiperparámetros según resultados de entrega 2
+- Evaluación formal sobre conjunto de test (nunca visto durante entrenamiento)
 - Documentar curvas de entrenamiento (loss, mAP por época)
-- Análisis de casos donde el modelo falla: ¿qué tipo de productos se detectan mal? ¿qué condiciones de luz o ángulo afectan?
-- Preparar la sección de detección para el informe final y la presentación
+- Análisis de casos de fallo: condiciones de luz, ángulos, productos similares entre sí
+- Preparar sección de detección para informe y presentación
 
-**Entregable final:**
-- Modelo final entrenado con métricas formales en test set
-- Sección de análisis de errores del detector
-- Slides de la parte de detección para la presentación
+**Entregables finales:**
+- Modelo final con métricas formales en test set
+- Análisis de errores documentado
+- Slides de detección para la presentación
 
 ---
 
-### Daniel Dubón — Clasificación y Matching
+### Daniel Dubón — Clasificación + Análisis Temporal
 
-**Semanas 3–4 (8–21 mayo)**
-- Iterar el clasificador si hay categorías con bajo accuracy según resultados de la entrega 2
-- Evaluar formalmente el matching ORB: calcular qué tan bien identifica productos conocidos vs. desconocidos
-- Explorar si agregar descriptores SIFT mejora el matching en algún caso específico
-- Análisis comparativo: ¿dónde ayuda el clasificador ResNet? ¿dónde falla?
-- Preparar la sección de clasificación para el informe y la presentación
+- Iterar clasificador en categorías con bajo accuracy
+- **Módulo temporal final:** ampliar la secuencia temporal a múltiples días si es posible, refinar predicción de quiebres, calcular error de predicción vs. quiebre real observado
+- Análisis comparativo: ¿en qué zonas o categorías el sistema predice mejor?
+- Evaluar matching ORB: precisión en identificación de productos conocidos vs. desconocidos
+- Preparar sección de clasificación y análisis temporal para informe y presentación
 
-**Entregable final:**
+**Entregables finales:**
 - Clasificador final con evaluación completa
-- Análisis comparativo ORB vs SIFT en el contexto del proyecto
-- Sección del informe y slides correspondientes
+- Módulo temporal con análisis de patrones y métricas de predicción
+- Slides correspondientes
 
 ---
 
-### Bianca Calderón — Geometría y Reporte
+### Bianca Calderón — Geometría + Planograma
 
-**Semanas 3–4 (8–21 mayo)**
-- Afinar la corrección de perspectiva en casos difíciles (fotos muy anguladas o con distorsión)
-- Validar las métricas contra ground truth manual: contar físicamente productos y espacios vacíos en 10 imágenes y comparar con lo que el sistema reporta
-- Calcular error absoluto del sistema en % de quiebre y share of shelf
-- Generar el conjunto final de reportes para la presentación (mínimo 10 casos distintos)
-- Preparar la sección de métricas y resultados para el informe final y la presentación
+- Afinar corrección de perspectiva en casos difíciles (fotos muy anguladas, distorsión de lente)
+- **Módulo de planograma final:** evaluar score de cumplimiento sobre 10+ pares reales, calcular correlación entre score de cumplimiento y quiebre detectado
+- Validar métricas contra ground truth manual: contar físicamente productos y espacios en 10 imágenes y comparar con lo que el sistema reporta
+- Calcular error absoluto en % de quiebre y share of shelf
+- Generar conjunto final de reportes para la presentación
 
-**Entregable final:**
+**Entregables finales:**
 - Validación de métricas con ground truth manual
-- Conjunto final de reportes visuales generados
-- Sección del informe y slides de métricas
+- Evaluación del módulo de planograma con correlación entre cumplimiento y quiebre
+- Conjunto final de reportes visuales
+- Slides de geometría y métricas
 
 ---
 
-### Integración Final — Entrega 3
+### Integración Final
 
-- **Informe final** estructurado con: introducción, marco teórico, metodología, resultados, análisis, conclusiones
-- **Demo en video** o en vivo: foto entra → reporte sale, mostrando los 3 módulos integrados
-- **Repositorio limpio** con código comentado, README de instalación y uso, y modelos guardados
-- **Presentación** de 15–20 minutos dividida equitativamente entre los tres integrantes
+- **Informe final:** introducción, marco teórico, metodología por módulo, resultados, análisis, conclusiones
+- **Demo:** foto/secuencia entra → reporte sale, mostrando los tres módulos integrados
+- **Repositorio limpio:** código comentado, README de instalación y uso, modelos guardados
+- **Presentación:** 15–20 minutos divididos equitativamente entre los tres
 
 ---
 
-## Resumen de Entregables por Fecha
+## Resumen de Entregables
 
 | Entrega | Fecha | Qué se entrega |
 |---|---|---|
-| **Entrega 1** | 30 abril 2026 | Dataset anotado, corrección de perspectiva, primer modelo YOLOv8, pipeline de clasificación base |
-| **Entrega 2** | 7 mayo 2026 | Pipeline completo de extremo a extremo, métricas formales, reportes visuales de ejemplo |
-| **Entrega Final** | 21 mayo 2026 | Sistema pulido, informe completo, validación con ground truth, demo y presentación |
+| **Entrega 1** | 30 abril 2026 | Dataset anotado, corrección de perspectiva, primer YOLOv8, pipeline de clasificación base, diseño de módulos de planograma y temporal |
+| **Entrega 2** | 7 mayo 2026 | Pipeline completo integrado, métricas formales, módulo de planograma v1, módulo temporal v1 con primeros patrones |
+| **Entrega Final** | 21 mayo 2026 | Sistema pulido, validación con ground truth, análisis de los tres módulos, informe, demo y presentación |
 
 ---
 
-## Métricas de Evaluación del Proyecto
+## Métricas de Evaluación
 
-| Métrica | Qué mide | Módulo responsable |
+| Métrica | Qué mide | Responsable |
 |---|---|---|
 | mAP@0.5 | Calidad del detector YOLO | Diego |
 | IoU promedio | Precisión de bounding boxes | Diego |
 | Accuracy top-1 | Clasificación por categoría | Daniel |
-| Distancia de descriptores ORB | Calidad del matching | Daniel |
-| Error en % de quiebre vs. ground truth | Validez del análisis | Bianca |
-| Error en share of shelf vs. ground truth | Validez del análisis | Bianca |
+| Error de predicción temporal | Cuánto se anticipa al quiebre real | Daniel |
+| Score de cumplimiento de planograma | Coincidencia real vs. planograma | Bianca |
+| Error en % de quiebre vs. ground truth | Validez del análisis de stock | Bianca |
+| Error en share of shelf vs. ground truth | Validez del análisis por categoría | Bianca |
+
+---
+
+## Cobertura de Técnicas del Curso
+
+| Técnica del curso | Módulo donde se aplica |
+|---|---|
+| Filtrado y convolución | Preprocesamiento de imágenes en los tres módulos |
+| Transformadas de Fourier | Análisis de textura para detección de zonas vacías |
+| Morfología | Limpieza de regiones detectadas |
+| Harris / SIFT / ORB | Matching planograma vs. realidad (Bianca + Daniel) |
+| Geometría proyectiva y homografías | Corrección de perspectiva y alineación de planograma (Bianca) |
+| CNNs y transfer learning | Clasificación por categoría con ResNet (Daniel) |
+| Arquitecturas modernas (ResNet) | Backbone del clasificador (Daniel) |
+| Detección de objetos (YOLO) | Detección de productos y zonas vacías (Diego) |
+| IoU, mAP, NMS | Evaluación y post-procesamiento del detector (Diego) |
 
 ---
 
@@ -237,12 +256,14 @@ Sistema que analiza fotos de estantes de supermercado para detectar automáticam
 | Python 3.10+ | Lenguaje principal |
 | Ultralytics YOLOv8 | Detección de objetos |
 | PyTorch + torchvision | Transfer learning con ResNet |
-| OpenCV | Homografía, ORB, procesamiento de imagen |
+| OpenCV | Homografía, ORB/SIFT, procesamiento de imagen |
 | Roboflow | Anotación del dataset |
 | SKU110K | Dataset público complementario |
-| Matplotlib / PIL | Generación de reportes visuales |
+| Pandas + Matplotlib | Análisis temporal y visualización |
+| Scikit-learn | Regresión para predicción de quiebres |
+| PIL / Matplotlib | Generación de reportes visuales |
 | Google Colab / GPU local | Entrenamiento |
 
 ---
 
-*Plan elaborado el 23 de abril de 2026.*
+*Plan versión 2.0 — Actualizado el 29 de abril de 2026.*
