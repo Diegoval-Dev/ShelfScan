@@ -96,6 +96,25 @@ python scripts/inference.py ruta/imagen.jpg
 # Output: JSON con class_name, confidence, bbox
 ```
 
+### 5. Corrección de perspectiva y planograma
+```bash
+python scripts/perspective.py -i ruta/imagen.jpg
+```
+- Selecciona manualmente 4 esquinas del estante: superior izquierda, superior derecha, inferior derecha, inferior izquierda.
+- El script aplica `cv2.getPerspectiveTransform` y `cv2.warpPerspective` para generar una vista frontal del estante.
+- Si prefieres pasar los puntos desde línea de comandos:
+  ```bash
+  python scripts/perspective.py -i ruta/imagen.jpg -p 100,120 520,130 540,400 90,390
+  ```
+
+```bash
+python scripts/perspective.py -d data/raw -o data/warped
+```
+- Procesa un directorio completo de imágenes JPG/JPEG/PNG y guarda las versiones corregidas.
+
+#### ¿Qué es el planograma de referencia?
+El planograma de referencia es la imagen del estante tomada en condiciones controladas que representa la distribución ideal de productos. Esta imagen sirve como plantilla para alinear y comparar una imagen real del estante, evaluando el cumplimiento espacial y la presencia de artículos esperados.
+
 ## Métricas objetivo
 
 | Métrica | Entrega 1 (preliminar) | Entrega Final |
