@@ -1,0 +1,17 @@
+path: ../data/augmented
+train: images/train
+val: images/val
+test: images/test
+
+nc: 10
+names:
+  - bebidas
+  - lacteos
+  - snacks
+  - cereales
+  - limpieza
+  - enlatados
+  - aceites
+  - higiene
+  - confiteria
+  - zona_vacia
