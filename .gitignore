@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data — imágenes propias y aumentadas (demasiado pesadas para git)
+data/raw/
+data/annotated/
+data/augmented/
+data/warped/
+data/classifier_dataset/
+
+# Modelos entrenados (pesados — usar releases o DVC)
+models/
+
+# YOLOv8 runs
+runs/
+
+# Roboflow exports
+*.zip
+*.tar.gz
+
+# Resultados y reportes generados
+results/
+outputs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Env vars / secrets
+.env
+*.key
