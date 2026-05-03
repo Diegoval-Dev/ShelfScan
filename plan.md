@@ -38,7 +38,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 - Definir las 8–12 categorías de productos a detectar (bebidas, lácteos, snacks, limpieza, etc.)
 - Fotografiar estantes en 1–2 tiendas locales desde distintos ángulos y condiciones de luz — meta: 150–200 fotos propias
 - Descargar y explorar SKU110K como complemento
-- Anotar dataset en Roboflow (mínimo 100 imágenes)
+- Anotar dataset con labelImg (mínimo 100 imágenes, formato YOLOv8)
 - Aplicar data augmentation: rotación, cambio de brillo, blur, flip horizontal
 - Configurar entorno: Python, Ultralytics YOLOv8, CUDA si disponible
 - Correr primera versión de entrenamiento YOLOv8 (versión preliminar)
@@ -257,7 +257,8 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | Ultralytics YOLOv8 | Detección de objetos |
 | PyTorch + torchvision | Transfer learning con ResNet |
 | OpenCV | Homografía, ORB/SIFT, procesamiento de imagen |
-| Roboflow | Anotación del dataset |
+| labelImg | Anotación del dataset (local, formato YOLO) |
+| YOLO-World | Pre-etiquetado automático zero-shot para acelerar anotación |
 | SKU110K | Dataset público complementario |
 | Pandas + Matplotlib | Análisis temporal y visualización |
 | Scikit-learn | Regresión para predicción de quiebres |

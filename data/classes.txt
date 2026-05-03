@@ -1,0 +1,10 @@
+bebidas
+lacteos
+snacks
+cereales
+limpieza
+enlatados
+aceites
+higiene
+confiteria
+zona_vacia

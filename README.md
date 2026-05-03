@@ -38,7 +38,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 ShelfScan/
 ├── data/
 │   ├── raw/              # fotos originales sin anotar
-│   ├── annotated/        # imágenes + labels YOLO (.txt) de Roboflow
+│   ├── annotated/        # imágenes + labels YOLO (.txt) generados con labelImg
 │   │   ├── images/
 │   │   └── labels/
 │   ├── augmented/        # salida de augmentation.py
@@ -65,10 +65,21 @@ ShelfScan/
 
 ## Pipeline completo
 
-### 1. Anotar dataset en Roboflow
-- Subir fotos de `data/raw/` a Roboflow
-- Anotar con las 10 clases definidas en `categories.py`
-- Exportar en formato YOLOv8 → guardar en `data/annotated/`
+### 1. Pre-etiquetar con YOLO-World (opcional, acelera anotación)
+```bash
+python scripts/autolabel.py --input data/raw --output data/annotated
+```
+Genera labels `.txt` en formato YOLO usando detección zero-shot. Revisar y corregir con labelImg antes de entrenar.
+
+### 2. Revisar y corregir con anylabeling
+```bash
+pip install anylabeling
+anylabeling
+```
+- File → Open Dir → selecciona `data/annotated/images/`
+- Los pre-labels generados por YOLO-World cargan automáticamente
+- Corrige/agrega/borra cajas según sea necesario
+- Export → YOLO format → apuntar a `data/annotated/labels/`
 
 ### 2. Augmentation
 ```bash
@@ -128,5 +139,5 @@ El planograma de referencia es la imagen del estante tomada en condiciones contr
 
 - **Propio:** 150–200 fotos en tiendas locales (distintos ángulos y luz)
 - **Complemento:** SKU110K (filtrado a categorías relevantes)
-- **Anotado en:** Roboflow (mínimo 100 imágenes para Entrega 1)
+- **Anotado con:** labelImg (mínimo 100 imágenes para Entrega 1)
 - **Aumentado:** ~5× el tamaño original

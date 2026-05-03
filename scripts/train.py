@@ -14,22 +14,28 @@ except ImportError:
     sys.exit(1)
 
 DATA_YAML = Path("data/dataset.yaml").resolve()
-MODEL_DIR = Path("models")
+MODEL_DIR = Path(__file__).resolve().parent.parent / "models"
 MODEL_DIR.mkdir(exist_ok=True)
 
 
-def _has_cuda() -> bool:
+def _best_device() -> str:
     try:
         import torch
-        return torch.cuda.is_available()
+        if torch.cuda.is_available():
+            return "0"
+        if torch.backends.mps.is_available():
+            return "mps"
     except ImportError:
-        return False
+        pass
+    return "cpu"
 
 
 def train():
     if not DATA_YAML.exists():
         print(f"dataset.yaml not found at {DATA_YAML}")
         sys.exit(1)
+
+    device = _best_device()
 
     train_config = {
         "data": str(DATA_YAML),
@@ -42,10 +48,11 @@ def train():
         "exist_ok": True,
         "plots": True,
         "save": True,
-        "device": "0" if _has_cuda() else "cpu",
+        "device": device,
+        "amp": device != "mps",
     }
 
-    print(f"Device: {'CUDA' if _has_cuda() else 'CPU'}")
+    print(f"Device: {device}")
     print(f"Config: {train_config}")
 
     model = YOLO("yolov8n.pt")
@@ -61,7 +68,7 @@ def train():
     print(f"Precision:    {metrics.box.mp:.4f}")
     print(f"Recall:       {metrics.box.mr:.4f}")
 
-    report_path = MODEL_DIR / "shelfscan_v1" / "map_report.txt"
+    report_path = results.save_dir / "map_report.txt"
     with open(report_path, "w") as f:
         f.write("ShelfScan v1 — Preliminary mAP Report (Entrega 1)\n")
         f.write("=" * 50 + "\n")
