@@ -13,20 +13,24 @@ build/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
+# Data — demasiado pesada para git
+data/raw/
+data/annotated/
+data/augmented/
+data/warped/
+data/classifier_dataset/
 
+# Cache YOLOv8
+*.cache
 
-# Modelos entrenados (pesados — usar releases o DVC)
+# Modelos entrenados — compartir via Drive, no git
 models/
-
-# YOLOv8 runs
 runs/
+*.pt
 
+# Archivos comprimidos
 *.zip
 *.tar.gz
-
-# Resultados y reportes generados
-results/
-outputs/
 
 # OS
 .DS_Store
@@ -38,6 +42,8 @@ Thumbs.db
 *.swp
 *.swo
 
-# Env vars / secrets
+# Env vars
 .env
 *.key
+
+.claude/

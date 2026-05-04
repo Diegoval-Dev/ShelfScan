@@ -1,4 +1,4 @@
-# ShelfScan — Módulo de Detección (Diego Valenzuela)
+# ShelfScan — Módulo de Detección
 
 Detección de productos y zonas vacías en estantes de supermercado usando YOLOv8.
 
@@ -17,127 +17,131 @@ Detección de productos y zonas vacías en estantes de supermercado usando YOLOv
 | 8 | confiteria | dulces, chocolate, chicle |
 | 9 | zona_vacia | espacio vacío en el estante |
 
-## Entorno
+---
+
+## Entrenamiento con GPU NVIDIA (para el compañero)
+
+> **Este es el camino rápido si tienes GPU NVIDIA.**
+
+### 1. Clonar y preparar entorno
 
 ```bash
+git clone <repo-url>
+cd ShelfScan
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Python 3.10+. CUDA opcional (acelera entrenamiento ~10x).
-
-Verificar GPU:
+Verificar CUDA:
 ```bash
-python -c "import torch; print(torch.cuda.is_available())"
+python -c "import torch; print(torch.cuda.is_available())"  # debe ser True
 ```
+
+### 2. Descargar datasets
+
+```bash
+# Requiere ~/.kaggle/kaggle.json (obtener en kaggle.com → Settings → API)
+python scripts/download_dataset.py
+
+# Open Images (Google, sin auth — descarga clases con pocas muestras)
+python scripts/download_openimages.py
+```
+
+### 3. Auto-labelear imágenes sin anotar
+
+```bash
+python scripts/autolabel.py --input data/raw --output data/annotated
+```
+
+### 4. Augmentation y split
+
+```bash
+python scripts/augmentation.py
+python scripts/split_dataset.py
+```
+
+### 5. Entrenar
+
+```bash
+python scripts/train.py
+```
+
+El script detecta CUDA automáticamente. El modelo entrena en GPU.
+Al terminar guarda en `models/shelfscan_v1/weights/best.pt`.
+
+### 6. Compartir el modelo entrenado
+
+El archivo `best.pt` no se sube a git (binario grande).
+Compartir por Google Drive u otro medio y pasarle el link a Diego.
+
+Diego lo pone en: `models/shelfscan_v1/weights/best.pt`
+
+---
+
+## Uso del modelo (inferencia)
+
+```bash
+python scripts/inference.py ruta/imagen.jpg
+# Output: JSON con class_name, confidence, bbox
+python scripts/inference.py ruta/imagen.jpg models/shelfscan_v1/weights/best.pt
+```
+
+## Corrección de perspectiva
+
+```bash
+# Interactivo — click en 4 esquinas del estante
+python scripts/perspective.py -i ruta/imagen.jpg
+
+# Con puntos desde línea de comandos
+python scripts/perspective.py -i ruta/imagen.jpg -p 100,120 520,130 540,400 90,390
+
+# Directorio completo
+python scripts/perspective.py -d data/raw -o data/warped
+```
+
+---
 
 ## Estructura
 
 ```
 ShelfScan/
 ├── data/
-│   ├── raw/              # fotos originales sin anotar
-│   ├── annotated/        # imágenes + labels YOLO (.txt) generados con labelImg
-│   │   ├── images/
-│   │   └── labels/
-│   ├── augmented/        # salida de augmentation.py
-│   │   ├── images/{train,val,test}/
-│   │   └── labels/{train,val,test}/
-│   └── dataset.yaml      # config para YOLOv8
-├── models/
-│   └── shelfscan_v1/
-│       ├── weights/
-│       │   ├── best.pt
-│       │   └── last.pt
-│       ├── results.png
-│       └── map_report.txt
+│   ├── raw/              # imágenes sin anotar (ignorado en git)
+│   ├── annotated/        # imágenes + labels YOLO (ignorado en git)
+│   ├── augmented/        # salida de augmentation.py (ignorado en git)
+│   └── dataset.yaml      # config YOLOv8
+├── models/               # pesos entrenados (ignorado en git — compartir via Drive)
 ├── scripts/
-│   ├── categories.py     # definición de clases
-│   ├── augmentation.py   # augmentation pipeline
-│   ├── split_dataset.py  # train/val/test split (70/20/10)
-│   ├── train.py          # entrenamiento YOLOv8
-│   └── inference.py      # inferencia: imagen → bounding boxes
+│   ├── categories.py
+│   ├── download_dataset.py
+│   ├── download_openimages.py
+│   ├── autolabel.py
+│   ├── remap_labels.py
+│   ├── augmentation.py
+│   ├── split_dataset.py
+│   ├── train.py
+│   ├── inference.py
+│   ├── perspective.py
+│   └── planogram.py
 ├── notebooks/
 │   └── entrega1_training.ipynb
 └── requirements.txt
 ```
 
-## Pipeline completo
-
-### 1. Pre-etiquetar con YOLO-World (opcional, acelera anotación)
-```bash
-python scripts/autolabel.py --input data/raw --output data/annotated
-```
-Genera labels `.txt` en formato YOLO usando detección zero-shot. Revisar y corregir con labelImg antes de entrenar.
-
-### 2. Revisar y corregir con anylabeling
-```bash
-pip install anylabeling
-anylabeling
-```
-- File → Open Dir → selecciona `data/annotated/images/`
-- Los pre-labels generados por YOLO-World cargan automáticamente
-- Corrige/agrega/borra cajas según sea necesario
-- Export → YOLO format → apuntar a `data/annotated/labels/`
-
-### 2. Augmentation
-```bash
-python scripts/augmentation.py   # genera data/augmented/
-python scripts/split_dataset.py  # divide en train/val/test
-```
-
-Cada imagen genera 4 variantes: rotación ±15°, brillo alto/bajo, blur, flip horizontal.
-
-### 3. Entrenamiento
-```bash
-python scripts/train.py
-# O en Colab: abrir notebooks/entrega1_training.ipynb
-```
-
-Parámetros preliminares (Entrega 1):
-- Modelo base: `yolov8n.pt` (nano)
-- Epochs: 50 con early stopping (patience=10)
-- Imagen: 640×640
-- Batch: 16
-
-### 4. Inferencia
-```bash
-python scripts/inference.py ruta/imagen.jpg
-# Output: JSON con class_name, confidence, bbox
-```
-
-### 5. Corrección de perspectiva y planograma
-```bash
-python scripts/perspective.py -i ruta/imagen.jpg
-```
-- Selecciona manualmente 4 esquinas del estante: superior izquierda, superior derecha, inferior derecha, inferior izquierda.
-- El script aplica `cv2.getPerspectiveTransform` y `cv2.warpPerspective` para generar una vista frontal del estante.
-- Si prefieres pasar los puntos desde línea de comandos:
-  ```bash
-  python scripts/perspective.py -i ruta/imagen.jpg -p 100,120 520,130 540,400 90,390
-  ```
-
-```bash
-python scripts/perspective.py -d data/raw -o data/warped
-```
-- Procesa un directorio completo de imágenes JPG/JPEG/PNG y guarda las versiones corregidas.
-
-#### ¿Qué es el planograma de referencia?
-El planograma de referencia es la imagen del estante tomada en condiciones controladas que representa la distribución ideal de productos. Esta imagen sirve como plantilla para alinear y comparar una imagen real del estante, evaluando el cumplimiento espacial y la presencia de artículos esperados.
+---
 
 ## Métricas objetivo
 
-| Métrica | Entrega 1 (preliminar) | Entrega Final |
-|---------|------------------------|---------------|
-| mAP@0.5 | > 0.30 | > 0.65 |
-| mAP@0.5:0.95 | — | > 0.45 |
-| Precision | — | > 0.70 |
-| Recall | — | > 0.65 |
+| Métrica | Entrega 1 (obtenido) | Entrega 2 objetivo | Entrega Final |
+|---------|----------------------|--------------------|---------------|
+| mAP@0.5 | 0.436 ✓ | > 0.55 | > 0.65 |
+| mAP@0.5:0.95 | 0.263 | > 0.35 | > 0.45 |
+| Precision | 0.780 | > 0.75 | > 0.70 |
+| Recall | 0.425 | > 0.55 | > 0.65 |
 
 ## Dataset
 
-- **Propio:** 150–200 fotos en tiendas locales (distintos ángulos y luz)
-- **Complemento:** SKU110K (filtrado a categorías relevantes)
-- **Anotado con:** labelImg (mínimo 100 imágenes para Entrega 1)
-- **Aumentado:** ~5× el tamaño original
+- **Fuente:** Kaggle `humansintheloop/supermarket-shelves-dataset` + Open Images v7
+- **Anotado con:** YOLO-World (auto-label) + makesense.ai (revisión)
+- **Aumentado:** ~5× con rotación, brillo, blur, flip horizontal

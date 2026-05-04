@@ -3,7 +3,7 @@
 **Curso:** Visión por Computadora  
 **Grupo:** Diego Valenzuela · Daniel Dubón · Bianca Calderón  
 **Catedrático:** Alberto Suriano  
-**Versión:** 2.0 — Alcance ampliado a 3 integrantes
+**Versión:** 2.1 — Entrega 1 completada
 
 ---
 
@@ -27,64 +27,42 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-## Entrega 1 — 30 de abril de 2026
+## Entrega 1 — 30 de abril de 2026 ✓ COMPLETADA
 
-**Objetivo:** Infraestructura base lista. Datos recolectados, corrección de perspectiva funcionando, primer modelo de detección entrenado, y diseño del módulo de planograma definido.
+**Resultado:** mAP@0.5 = 0.436 (objetivo > 0.30 ✓). 36 épocas, early stopping en época 26.
 
----
+### Resultados por clase
+| Clase | mAP@0.5 | Nota |
+|---|---|---|
+| snacks | 0.973 | ✓ |
+| bebidas | 0.846 | ✓ |
+| enlatados | 0.647 | ✓ |
+| lacteos | 0.444 | ✓ |
+| zona_vacia | 0.136 | datos insuficientes |
+| aceites | 0.006 | solo 3 instancias en val |
+| higiene | 0.000 | solo 5 instancias en val |
+| cereales | — | 0 instancias en val |
+| limpieza | — | 0 instancias en val |
+| confiteria | — | 0 instancias en val |
 
-### Diego Valenzuela — Detección
+### Lo que se hizo
+- ✓ 10 categorías definidas (`categories.py`)
+- ✓ Dataset: Kaggle `humansintheloop/supermarket-shelves-dataset` descargado con `kagglehub`
+- ✓ Pre-etiquetado automático con YOLO-World (`autolabel.py`), revisión con makesense.ai
+- ✓ Augmentation: rotación ±15°, brillo, blur, flip — pipeline completo (`augmentation.py`)
+- ✓ Split 70/20/10 train/val/test (`split_dataset.py`)
+- ✓ YOLOv8n entrenado en MPS (Apple M5) con AMP deshabilitado
+- ✓ Script de inferencia (`inference.py`)
+- ✓ Corrección de perspectiva con selección de 4 puntos (`perspective.py`)
+- ✓ Módulo `PlanogramReference` base (`planogram.py`)
+- ✓ Notebook Entrega 1 (`entrega1_training.ipynb`)
+- ✓ `map_report.txt` con métricas
 
-- Definir las 8–12 categorías de productos a detectar (bebidas, lácteos, snacks, limpieza, etc.)
-- Fotografiar estantes en 1–2 tiendas locales desde distintos ángulos y condiciones de luz — meta: 150–200 fotos propias
-- Descargar y explorar SKU110K como complemento
-- Anotar dataset con labelImg (mínimo 100 imágenes, formato YOLOv8)
-- Aplicar data augmentation: rotación, cambio de brillo, blur, flip horizontal
-- Configurar entorno: Python, Ultralytics YOLOv8, CUDA si disponible
-- Correr primera versión de entrenamiento YOLOv8 (versión preliminar)
-
-**Entregables:**
-- Dataset propio anotado (100+ imágenes)
-- Script de augmentation aplicado
-- Primer modelo YOLOv8 con reporte de mAP inicial
-- README del entorno de entrenamiento
-
----
-
-### Daniel Dubón — Clasificación + Análisis Temporal
-
-- Investigar y documentar arquitectura ResNet-50 para transfer learning en clasificación de categorías
-- Preparar subconjunto de imágenes clasificadas por categoría (usando dataset de Diego)
-- Implementar pipeline base de fine-tuning: cargar ResNet preentrenado, congelar capas base, ajustar cabeza clasificadora
-- Primera prueba de entrenamiento con las categorías definidas
-- **Diseño del módulo temporal:** definir el esquema de recolección de secuencias (cuántas fotos, con qué intervalo, del mismo punto de cámara) y el formato de los datos temporales
-
-**Entregables:**
-- Notebook con pipeline de transfer learning funcionando
-- Reporte de accuracy en validación (versión inicial)
-- Documento de diseño del módulo temporal: esquema de datos, métricas a calcular, approach de predicción
-
----
-
-### Bianca Calderón — Geometría + Planograma
-
-- Implementar corrección de perspectiva con OpenCV: `getPerspectiveTransform` y `warpPerspective`
-- Desarrollar herramienta de selección de 4 puntos semi-asistida (click manual sobre esquinas del estante)
-- Probar corrección sobre 10–15 fotos reales y documentar resultados
-- **Diseño del módulo de planograma:** definir qué es el planograma de referencia (imagen fotografiada en condiciones controladas), cómo se alinea con la imagen real, y qué métricas de cumplimiento se calcularán
-- Investigar approach de matching espacial ORB/SIFT para comparación planograma vs. realidad
-
-**Entregables:**
-- Script funcional de corrección de perspectiva con interfaz de selección de puntos
-- Galería de 10 imágenes antes/después de la corrección
-- Documento de diseño del módulo de planograma: formato de referencia, pipeline de comparación, métricas propuestas
-
----
-
-### Integración — Entrega 1
-
-- Verificar compatibilidad de formatos de salida entre módulos
-- Documento de 1–2 páginas: descripción del dataset, decisiones de arquitectura y diseño de los dos módulos nuevos
+### Deuda para Entrega 2
+- Clases sin datos en val: cereales, limpieza, confiteria — agregar más imágenes de esas categorías
+- aceites e higiene con muy pocas instancias — mismo problema
+- Galería antes/después de corrección de perspectiva (Bianca — pendiente)
+- Documento formal de diseño de planograma y módulo temporal (pendiente)
 
 ---
 
@@ -257,7 +235,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | Ultralytics YOLOv8 | Detección de objetos |
 | PyTorch + torchvision | Transfer learning con ResNet |
 | OpenCV | Homografía, ORB/SIFT, procesamiento de imagen |
-| labelImg | Anotación del dataset (local, formato YOLO) |
+| makesense.ai | Anotación del dataset (browser, formato YOLO) |
 | YOLO-World | Pre-etiquetado automático zero-shot para acelerar anotación |
 | SKU110K | Dataset público complementario |
 | Pandas + Matplotlib | Análisis temporal y visualización |
@@ -267,4 +245,4 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-*Plan versión 2.0 — Actualizado el 29 de abril de 2026.*
+*Plan versión 2.1 — Actualizado el 2 de mayo de 2026.*
