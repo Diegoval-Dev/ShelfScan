@@ -63,6 +63,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 - aceites e higiene con muy pocas instancias — mismo problema
 - Galería antes/después de corrección de perspectiva (Bianca — pendiente)
 - Documento formal de diseño de planograma y módulo temporal (pendiente)
+- Modelo sesga todo hacia `enlatados` — labels de YOLO-World mal balanceados, necesita más data de otras clases
 
 ---
 
@@ -74,16 +75,18 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ### Diego Valenzuela — Detección
 
-- Completar entrenamiento YOLOv8 con dataset completo (propio + SKU110K filtrado)
-- Implementar y ajustar NMS para limpiar detecciones solapadas en zonas densas
-- Evaluar con métricas formales: mAP@0.5, mAP@0.5:0.95, Precision, Recall por clase
-- Probar detección sobre imágenes corregidas (salida de Bianca como entrada)
-- Identificar clases con peor desempeño y aplicar mejoras
+- ✓ Modelo YOLOv8 entrenado y guardado (`best.pt` — entrenado por compañero NVIDIA)
+- ✓ Script de inferencia: `inference.py` imagen → bounding boxes JSON
+- ✓ Pipeline perspectiva → detección: `detect_on_shelf.py`
+- ✓ Script eval formal test set: `evaluate.py`
+- ⬜ Correr `evaluate.py` → obtener reporte oficial
+- ⬜ Correr `download_openimages.py` → re-entrenar con clases balanceadas (cereales, limpieza, confiteria, aceites, higiene)
+- ⬜ NMS: YOLOv8 incluido, subir conf threshold a 0.40+ para reducir detecciones falsas
 
 **Entregables:**
-- Modelo YOLOv8 entrenado y guardado (.pt)
-- Reporte de métricas por clase con análisis de errores
-- Script de inferencia: imagen → bounding boxes con clase y confianza
+- ✓ Modelo .pt
+- ✓ Script inferencia
+- ⬜ Reporte métricas por clase (`map_report_test.txt` — pendiente correr evaluate.py)
 
 ---
 
