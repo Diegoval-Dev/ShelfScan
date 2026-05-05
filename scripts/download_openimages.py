@@ -59,15 +59,24 @@ OI_TO_SHELF: dict[str, int] = {
 }
 
 # Group by which classes need most data (0 or near-0 in val)
-PRIORITY_CLASSES = [
-    "Breakfast cereal", "Cereal",
-    "Cleaning agent", "Detergent", "Soap",
-    "Candy", "Chocolate", "Confectionery",
+# Classes with 0 or near-0 mAP get more samples
+PRIORITY_CLASSES_LARGE = [
+    "Breakfast cereal",
+    "Cleaning agent", "Detergent",
+    "Candy", "Chocolate",
     "Cooking oil",
     "Cosmetics", "Shampoo",
-    "Tin can",
-    "Bottle", "Drink",
 ]
+
+PRIORITY_CLASSES_NORMAL = [
+    "Bottle", "Drink", "Juice",
+    "Milk",
+    "Snack", "Cookie", "Potato chip",
+    "Tin can",
+    "Soap",
+]
+
+PRIORITY_CLASSES = PRIORITY_CLASSES_LARGE + PRIORITY_CLASSES_NORMAL
 
 
 def export_to_yolo(dataset: fo.Dataset, out_img: Path, out_lbl: Path) -> int:
@@ -118,14 +127,15 @@ def main() -> None:
 
     total = 0
     for oi_class in PRIORITY_CLASSES:
-        print(f"\nDownloading '{oi_class}' ({args.samples} samples)...")
+        n_samples = args.samples * 2 if oi_class in PRIORITY_CLASSES_LARGE else args.samples
+        print(f"\nDownloading '{oi_class}' ({n_samples} samples)...")
         try:
             ds = foz.load_zoo_dataset(
                 "open-images-v7",
                 split=args.split,
                 label_types=["detections"],
                 classes=[oi_class],
-                max_samples=args.samples,
+                max_samples=n_samples,
                 shuffle=True,
             )
             n = export_to_yolo(ds, out_img, out_lbl)

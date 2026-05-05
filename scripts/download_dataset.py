@@ -26,17 +26,12 @@ RAW_DIR = Path("data/raw")
 ANNOTATED_DIR = Path("data/annotated")
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
-# Datasets that come with YOLO labels (images + labels/ dirs)
-LABELED_DATASETS = [
-    "misahub/supermarket-product-detection",
-    "tapakah68/grocery-store-dataset",
-    "alessandrasala79/supermarket-products",
-]
+# Only public datasets confirmed to work without special Kaggle permissions
+LABELED_DATASETS: list[str] = []
 
-# Datasets with images only (will be auto-labeled later)
+# Images only — will be auto-labeled by autolabel.py
 UNLABELED_DATASETS = [
-    "humansintheloop/supermarket-shelves-dataset",
-    "dibyajyotisahoo/supermarket-dataset",
+    "humansintheloop/supermarket-shelves-dataset",  # 45 shelf images, confirmed public
 ]
 
 
