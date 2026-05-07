@@ -44,7 +44,8 @@ def _safe_copy(src: Path, dst: Path) -> bool:
     return True
 
 
-def copy_images_only(src: Path, dst_img: Path, limit: int | None = None) -> int:
+from typing import Union
+def copy_images_only(src: Path, dst_img: Path, limit: Union[int, None] = None) -> int:
     dst_img.mkdir(parents=True, exist_ok=True)
     images = [p for p in src.rglob("*") if p.suffix.lower() in IMAGE_EXTS and p.is_file()]
     if limit:
