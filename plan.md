@@ -3,7 +3,7 @@
 **Curso:** Visión por Computadora  
 **Grupo:** Diego Valenzuela · Daniel Dubón · Bianca Calderón  
 **Catedrático:** Alberto Suriano  
-**Versión:** 2.1 — Entrega 1 completada
+**Versión:** 2.2 — Entrega 2 en progreso
 
 ---
 
@@ -73,36 +73,76 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-### Diego Valenzuela — Detección
+### Diego Valenzuela — Detección ✓ COMPLETO (Entrega 2)
 
-- ✓ Modelo YOLOv8 entrenado y guardado (`best.pt` — entrenado por compañero NVIDIA)
-- ✓ Script de inferencia: `inference.py` imagen → bounding boxes JSON
+- ✓ Modelo YOLOv8 re-entrenado con Open Images (`best.pt` — NVIDIA)
+- ✓ Script de inferencia: `inference.py`
 - ✓ Pipeline perspectiva → detección: `detect_on_shelf.py`
-- ✓ Script eval formal test set: `evaluate.py`
-- ⬜ Correr `evaluate.py` → obtener reporte oficial
-- ⬜ Correr `download_openimages.py` → re-entrenar con clases balanceadas (cereales, limpieza, confiteria, aceites, higiene)
-- ⬜ NMS: YOLOv8 incluido, subir conf threshold a 0.40+ para reducir detecciones falsas
+- ✓ Eval formal en test set: `evaluate.py` corrido, `map_report_test.txt` generado
+- ✓ NMS activo en YOLOv8, conf=0.25
+
+**Métricas test set (Entrega 2):**
+| Clase | mAP@0.5 |
+|---|---|
+| enlatados | 0.454 ✓ |
+| confiteria | 0.319 ✓ |
+| aceites | 0.182 ⚠ |
+| higiene | 0.147 ⚠ |
+| limpieza | 0.132 ⚠ |
+| bebidas | 0.052 ✗ |
+| zona_vacia | 0.006 ✗ |
+| snacks | 0.003 ✗ |
+| lacteos | 0.000 ✗ |
+| cereales | 0.000 ✗ |
+| **all** | **0.173** |
+
+> Nota: test set ahora incluye Open Images (dominado por enlatados — 58% instancias). Comparación directa con Entrega 1 (0.436) no válida por distribución distinta. Mejora real se verá en Entrega Final con test set homogéneo.
 
 **Entregables:**
 - ✓ Modelo .pt
-- ✓ Script inferencia
-- ⬜ Reporte métricas por clase (`map_report_test.txt` — pendiente correr evaluate.py)
+- ✓ `inference.py`
+- ✓ `map_report_test.txt`
 
 ---
 
-### Daniel Dubón — Clasificación + Análisis Temporal
+### Daniel Dubón — Clasificación + Análisis Temporal 🔴 INICIO INMEDIATO
 
-- Completar fine-tuning de ResNet con todas las categorías
-- Integrar clasificador con detecciones de YOLO: cada bounding box pasa por ResNet
-- **Módulo temporal v1:** recolectar secuencia de imágenes del mismo estante en distintos momentos del día (mínimo 3 momentos distintos), correr el detector sobre cada imagen y construir la serie temporal de ocupación por categoría
-- Implementar detección de patrones básicos: qué categorías se vacían más rápido, en qué franja horaria
-- Primera versión de predicción simple: regresión lineal o promedio móvil sobre la serie temporal para estimar cuándo habrá quiebre
+**Prerequisito listo:** `best.pt` disponible, crops generables desde test set.
+
+**Paso 1 — Generar crops (10 min):**
+```bash
+python -c "
+from ultralytics import YOLO
+import cv2, os, sys
+sys.path.insert(0,'scripts')
+model = YOLO('models/shelfscan_v1/weights/best.pt')
+results = model.predict(source='data/augmented/images/test', conf=0.4, verbose=False)
+for i,r in enumerate(results):
+    for j,box in enumerate(r.boxes):
+        cls=int(box.cls); name=r.names[cls]
+        os.makedirs(f'data/classifier_dataset/{name}', exist_ok=True)
+        x1,y1,x2,y2=map(int,box.xyxy[0])
+        crop=r.orig_img[y1:y2,x1:x2]
+        if crop.size>0: cv2.imwrite(f'data/classifier_dataset/{name}/crop_{i}_{j}.jpg',crop)
+print('Done')
+"
+```
+
+**Paso 2 — Fine-tuning ResNet-50:** usar notebook `entrega1_training.ipynb` cells 15–18.
+
+**Paso 3 — Módulo temporal:** usar 3+ imágenes del mismo estante a distintas horas, correr `inference.py` sobre cada una, contar productos por clase, graficar serie temporal.
+
+**Limitación conocida:** crops dominados por `enlatados` y `confiteria` (clases que YOLO detecta bien). ResNet aprenderá principalmente esas. Documentar como limitación del modelo actual.
+
+- ⬜ Crops generados en `data/classifier_dataset/`
+- ⬜ ResNet fine-tuning corrido
+- ⬜ Accuracy top-1 + matriz de confusión
+- ⬜ Módulo temporal v1: secuencia 3+ imágenes → gráfica de ocupación
 
 **Entregables:**
-- Pipeline integrado: imagen → detección → clasificación por categoría
-- Evaluación del clasificador: accuracy top-1, matriz de confusión
-- Módulo temporal funcionando con al menos una secuencia real de datos
-- Gráfica de ocupación por categoría a lo largo del tiempo
+- Pipeline integrado: imagen → detección YOLO → crop → clasificación ResNet
+- Evaluación clasificador: accuracy top-1, matriz de confusión
+- Módulo temporal: gráfica de ocupación por categoría vs. tiempo
 
 ---
 
@@ -248,4 +288,4 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-*Plan versión 2.1 — Actualizado el 2 de mayo de 2026.*
+*Plan versión 2.2 — Actualizado el 6 de mayo de 2026.*
