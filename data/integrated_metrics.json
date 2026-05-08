@@ -1,0 +1,35 @@
+{
+  "total_images_processed": 6,
+  "planogram_metrics": {
+    "avg_compliance_score": 0.0,
+    "avg_general_score": 0.0,
+    "compliance_std": 0.0,
+    "general_score_std": 0.0
+  },
+  "detection_metrics": {
+    "total_detections": 0,
+    "avg_detections_per_image": 0.0,
+    "unique_categories_detected": 0,
+    "category_distribution": {}
+  },
+  "breakage_metrics": {
+    "avg_breakage_by_category": {
+      "bebidas": 1.0,
+      "lacteos": 1.0,
+      "snacks": 1.0,
+      "cereales": 1.0,
+      "limpieza": 1.0,
+      "enlatados": 1.0,
+      "aceites": 1.0,
+      "higiene": 1.0,
+      "confiteria": 1.0
+    },
+    "overall_avg_breakage": 1.0,
+    "most_problematic_category": "bebidas"
+  },
+  "shelf_health_score": 0.0,
+  "recommendations": [
+    "Alto quiebre detectado en categorías: bebidas, lacteos, snacks, cereales, limpieza, enlatados, aceites, higiene, confiteria. Considerar reabastecimiento urgente.",
+    "Cumplimiento del planograma muy bajo. Revisar disposición de productos."
+  ]
+}

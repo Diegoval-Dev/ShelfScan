@@ -1,0 +1,113 @@
+{
+  "image_path": "data/test_001.jpg",
+  "warped_path": "data/planogram_results/test_001_warped.jpg",
+  "annotated_path": "data/planogram_results/test_001_warped.jpg",
+  "report_path": "data/planogram_results/test_001_report.png",
+  "perspective_points": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      5564.0,
+      0.0
+    ],
+    [
+      5564.0,
+      3642.0
+    ],
+    [
+      0.0,
+      3642.0
+    ]
+  ],
+  "detections": [],
+  "compliance": {
+    "overall_compliance": 0.0,
+    "compliant_zones": 0,
+    "total_zones": 9,
+    "zone_details": {
+      "Z01": {
+        "expected": "bebidas",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z02": {
+        "expected": "lacteos",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z03": {
+        "expected": "snacks",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z04": {
+        "expected": "cereales",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z05": {
+        "expected": "limpieza",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z06": {
+        "expected": "enlatados",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z07": {
+        "expected": "aceites",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z08": {
+        "expected": "higiene",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z09": {
+        "expected": "confiteria",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      }
+    }
+  },
+  "metrics": {
+    "breakage_by_category": {
+      "bebidas": 1.0,
+      "lacteos": 1.0,
+      "snacks": 1.0,
+      "cereales": 1.0,
+      "limpieza": 1.0,
+      "enlatados": 1.0,
+      "aceites": 1.0,
+      "higiene": 1.0,
+      "confiteria": 1.0
+    },
+    "share_of_shelf_expected": {
+      "bebidas": 0.11108061121786074,
+      "lacteos": 0.11108061121786074,
+      "snacks": 0.11108061121786074,
+      "cereales": 0.11108061121786074,
+      "limpieza": 0.11108061121786074,
+      "enlatados": 0.11108061121786074,
+      "aceites": 0.11117211089761186,
+      "higiene": 0.11117211089761186,
+      "confiteria": 0.11117211089761186
+    },
+    "share_of_shelf_actual": {},
+    "general_score": 0.0,
+    "total_shelf_area": 20273295
+  }
+}

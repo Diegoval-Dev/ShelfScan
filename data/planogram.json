@@ -1,0 +1,66 @@
+{
+  "reference_image_path": "data/planogram_reference.jpg",
+  "reference_corners": [
+    [0, 0],
+    [5564, 0],
+    [5564, 3642],
+    [0, 3642]
+  ],
+  "zones": [
+    {
+      "id": "Z01",
+      "expected_class": "bebidas",
+      "bbox": [0, 0, 1855, 1214],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z02",
+      "expected_class": "lacteos",
+      "bbox": [1855, 0, 3710, 1214],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z03",
+      "expected_class": "snacks",
+      "bbox": [3710, 0, 5565, 1214],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z04",
+      "expected_class": "cereales",
+      "bbox": [0, 1214, 1855, 2428],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z05",
+      "expected_class": "limpieza",
+      "bbox": [1855, 1214, 3710, 2428],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z06",
+      "expected_class": "enlatados",
+      "bbox": [3710, 1214, 5565, 2428],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z07",
+      "expected_class": "aceites",
+      "bbox": [0, 2428, 1855, 3643],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z08",
+      "expected_class": "higiene",
+      "bbox": [1855, 2428, 3710, 3643],
+      "confidence": 1.0
+    },
+    {
+      "id": "Z09",
+      "expected_class": "confiteria",
+      "bbox": [3710, 2428, 5565, 3643],
+      "confidence": 1.0
+    }
+  ],
+  "description": "Planograma de ejemplo con 9 zonas organizadas en cuadrícula 3x3"
+}
