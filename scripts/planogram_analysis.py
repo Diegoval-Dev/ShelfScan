@@ -27,30 +27,38 @@ def map_yolo_world_class(cls_id: int, class_names: Dict[int, str]) -> str:
     mapping = {
         # bebidas
         'bottle': 'bebidas', 'wine': 'bebidas', 'beer': 'bebidas', 'drink': 'bebidas',
+        'water': 'bebidas', 'soda': 'bebidas', 'juice': 'bebidas',
 
         # lacteos
-        'milk': 'lacteos', 'cheese': 'lacteos', 'yogurt': 'lacteos',
+        'milk': 'lacteos', 'cheese': 'lacteos', 'yogurt': 'lacteos', 'butter': 'lacteos',
 
         # snacks
         'chips': 'snacks', 'cookie': 'snacks', 'cracker': 'snacks', 'snack': 'snacks',
+        'pretzel': 'snacks', 'popcorn': 'snacks', 'nuts': 'snacks',
 
         # cereales
-        'cereal': 'cereales', 'oat': 'cereales',
+        'cereal': 'cereales', 'oat': 'cereales', 'granola': 'cereales',
 
         # limpieza
         'soap': 'limpieza', 'detergent': 'limpieza', 'cleaner': 'limpieza',
+        'sponge': 'limpieza', 'brush': 'limpieza',
 
         # enlatados
         'can': 'enlatados', 'tin': 'enlatados', 'jar': 'enlatados',
+        'canister': 'enlatados', 'container': 'enlatados',
 
         # aceites
         'oil': 'aceites', 'bottle': 'aceites', 'container': 'aceites',
+        'olive': 'aceites', 'vinegar': 'aceites',
 
         # higiene
         'toothbrush': 'higiene', 'toothpaste': 'higiene', 'shampoo': 'higiene',
+        'deodorant': 'higiene', 'cream': 'higiene',
 
         # confiteria
         'candy': 'confiteria', 'chocolate': 'confiteria', 'gum': 'confiteria',
+        'cake': 'confiteria', 'donut': 'confiteria', 'pastry': 'confiteria',
+        'cookie': 'confiteria', 'sweet': 'confiteria', 'dessert': 'confiteria',
     }
 
     return mapping.get(yolo_class, 'zona_vacia')
@@ -144,8 +152,8 @@ def process_single_image(image_path: Path, planogram: PlanogramReference,
         from ultralytics import YOLO
         model = YOLO(model_path)
         results = model.predict(
-            source=str(warped_path),
-            conf=0.25,
+            source=warped,  # Pasar imagen directamente en lugar de path
+            conf=0.1,  # Bajamos el threshold para detectar más objetos
             verbose=False,
             classes=None  # Detectar todas las clases
         )
@@ -174,6 +182,8 @@ def process_single_image(image_path: Path, planogram: PlanogramReference,
 
     except Exception as e:
         print(f"Error en detección: {e}")
+        import traceback
+        traceback.print_exc()  # Agregar traceback para debugging
         detections = []
         annotated_path = warped_path
 
