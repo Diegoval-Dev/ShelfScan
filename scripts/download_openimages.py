@@ -38,21 +38,17 @@ OI_TO_SHELF: dict[str, int] = {
     "Juice":            0,
     "Milk":             1,
     "Dairy":            1,
-    "Snack":            2,
+    "Biscuit":          2,
     "Cookie":           2,
     "Potato chip":      2,
     "Breakfast cereal": 3,
-    "Cereal":           3,
-    "Cleaning agent":   4,
+    "Cleaner":          4,   # correct OI label for cleaning products
     "Soap":             4,
-    "Detergent":        4,
     "Tin can":          5,
-    "Canned food":      5,
     "Cooking oil":      6,
-    "Vinegar":          6,
+    "Bottle cap":       6,
     "Cosmetics":        7,
     "Shampoo":          7,
-    "Personal care":    7,
     "Candy":            8,
     "Chocolate":        8,
     "Confectionery":    8,
@@ -62,7 +58,7 @@ OI_TO_SHELF: dict[str, int] = {
 # Classes with 0 or near-0 mAP get more samples
 PRIORITY_CLASSES_LARGE = [
     "Breakfast cereal",
-    "Cleaning agent", "Detergent",
+    "Cleaner", "Soap",          # limpieza — was 0 instances
     "Candy", "Chocolate",
     "Cooking oil",
     "Cosmetics", "Shampoo",
@@ -71,9 +67,8 @@ PRIORITY_CLASSES_LARGE = [
 PRIORITY_CLASSES_NORMAL = [
     "Bottle", "Drink", "Juice",
     "Milk",
-    "Snack", "Cookie", "Potato chip",
+    "Biscuit", "Cookie", "Potato chip",
     "Tin can",
-    "Soap",
 ]
 
 PRIORITY_CLASSES = PRIORITY_CLASSES_LARGE + PRIORITY_CLASSES_NORMAL

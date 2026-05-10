@@ -1,35 +1,45 @@
 """
-Split augmented dataset into train/val/test sets (70/20/10).
-Run after augmentation.py.
+Split augmented dataset into train/val/test sets.
+
+Strategy:
+  - Original shelf images (001.jpg..045.jpg) → test set (clean holdout, never mixed)
+  - Open Images / other sources → train + val only (80/20)
+
+This keeps test set distribution stable across re-trainings.
 """
 
-import os
 import shutil
 import random
 from pathlib import Path
 
 AUGMENTED_DIR = Path("data/augmented")
-SPLIT_RATIOS = {"train": 0.70, "val": 0.20, "test": 0.10}
 SEED = 42
-
 random.seed(SEED)
+
+
+def _is_original(stem: str) -> bool:
+    """Original humansintheloop images are named 001–045 (with optional augmentation suffix)."""
+    base = stem.split("_")[0]
+    return base.isdigit() and len(base) == 3
 
 
 def split():
     img_dir = AUGMENTED_DIR / "images"
     lbl_dir = AUGMENTED_DIR / "labels"
 
-    images = sorted(img_dir.glob("*.jpg")) + sorted(img_dir.glob("*.png"))
-    random.shuffle(images)
+    all_images = sorted(img_dir.glob("*.jpg")) + sorted(img_dir.glob("*.png"))
 
-    n = len(images)
-    n_train = int(n * SPLIT_RATIOS["train"])
-    n_val = int(n * SPLIT_RATIOS["val"])
+    original = [p for p in all_images if _is_original(p.stem)]
+    external = [p for p in all_images if not _is_original(p.stem)]
+
+    random.shuffle(external)
+    n_ext = len(external)
+    n_val = int(n_ext * 0.20)
 
     splits = {
-        "train": images[:n_train],
-        "val": images[n_train:n_train + n_val],
-        "test": images[n_train + n_val:],
+        "train": external[n_val:],
+        "val":   external[:n_val],
+        "test":  original,
     }
 
     for split_name, split_images in splits.items():
@@ -46,7 +56,8 @@ def split():
 
         print(f"  {split_name}: {len(split_images)} images")
 
-    print(f"\nTotal: {n} images split into train/val/test")
+    print(f"\nOriginal shelf images in test ({len(original)}), "
+          f"external data in train/val ({len(external)})")
 
 
 if __name__ == "__main__":

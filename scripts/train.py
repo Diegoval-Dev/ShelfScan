@@ -50,6 +50,7 @@ def train():
         "save": True,
         "device": device,
         "amp": device != "mps",
+        "cls": 1.5,
     }
 
     print(f"Device: {device}")
