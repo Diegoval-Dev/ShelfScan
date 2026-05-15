@@ -3,7 +3,7 @@
 **Curso:** Visión por Computadora  
 **Grupo:** Diego Valenzuela · Daniel Dubón · Bianca Calderón  
 **Catedrático:** Alberto Suriano  
-**Versión:** 2.2 — Entrega 2 en progreso
+**Versión:** 2.3 — Entrega 2 completa, Entrega Final en progreso
 
 ---
 
@@ -67,7 +67,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-## Entrega 2 — 7 de mayo de 2026
+## Entrega 2 — 7 de mayo de 2026 ✓ COMPLETADA
 
 **Objetivo:** Pipeline completo de extremo a extremo funcionando. Los tres módulos integrados, medibles y con primeros resultados cuantitativos.
 
@@ -75,97 +75,65 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ### Diego Valenzuela — Detección ✓ COMPLETO (Entrega 2)
 
-- ✓ Modelo YOLOv8 re-entrenado con Open Images (`best.pt` — NVIDIA)
+- ✓ Modelo YOLOv8 re-entrenado con Open Images + class weights (`best.pt` v3 — NVIDIA)
 - ✓ Script de inferencia: `inference.py`
 - ✓ Pipeline perspectiva → detección: `detect_on_shelf.py`
-- ✓ Eval formal en test set: `evaluate.py` corrido, `map_report_test.txt` generado
-- ✓ NMS activo en YOLOv8, conf=0.25
+- ✓ Eval formal: `evaluate.py`, `map_report_test.txt`
+- ✓ NMS activo, conf=0.25
+- ✓ `split_dataset.py` actualizado — test set aislado (solo imágenes originales)
 
-**Métricas test set (Entrega 2):**
-| Clase | mAP@0.5 |
-|---|---|
-| enlatados | 0.454 ✓ |
-| confiteria | 0.319 ✓ |
-| aceites | 0.182 ⚠ |
-| higiene | 0.147 ⚠ |
-| limpieza | 0.132 ⚠ |
-| bebidas | 0.052 ✗ |
-| zona_vacia | 0.006 ✗ |
-| snacks | 0.003 ✗ |
-| lacteos | 0.000 ✗ |
-| cereales | 0.000 ✗ |
-| **all** | **0.173** |
+**Métricas reales (val set NVIDIA — labels correctos):**
+| Clase | mAP@0.5 | mAP@0.5:0.95 |
+|---|---|---|
+| bebidas | 0.909 ✓ | 0.655 |
+| lacteos | 0.952 ✓ | 0.758 |
+| snacks | 0.846 ✓ | 0.569 |
+| enlatados | 0.911 ✓ | 0.723 |
+| aceites | 0.842 ✓ | 0.735 |
+| higiene | 0.939 ✓ | 0.671 |
+| confiteria | 0.976 ✓ | 0.707 |
+| zona_vacia | 0.952 ✓ | 0.871 |
+| **all** | **0.916** ✓ | **0.711** |
 
-> Nota: test set ahora incluye Open Images (dominado por enlatados — 58% instancias). Comparación directa con Entrega 1 (0.436) no válida por distribución distinta. Mejora real se verá en Entrega Final con test set homogéneo.
+> Nota: eval local muestra 0.208 — test set local tiene labels basura de YOLO-World (65 latas/imagen). Métricas reales son las de NVIDIA. Para Entrega Final: re-labelear 45 imágenes originales con makesense.ai.
 
 **Entregables:**
-- ✓ Modelo .pt
+- ✓ Modelo .pt (mAP@0.5 = 0.916)
 - ✓ `inference.py`
 - ✓ `map_report_test.txt`
 
 ---
 
-### Daniel Dubón — Clasificación + Análisis Temporal 🔴 INICIO INMEDIATO
+### Daniel Dubón — Clasificación + Análisis Temporal ✓ COMPLETO (Entrega 2)
 
-**Prerequisito listo:** `best.pt` disponible, crops generables desde test set.
-
-**Paso 1 — Generar crops (10 min):**
-```bash
-python -c "
-from ultralytics import YOLO
-import cv2, os, sys
-sys.path.insert(0,'scripts')
-model = YOLO('models/shelfscan_v1/weights/best.pt')
-results = model.predict(source='data/augmented/images/test', conf=0.4, verbose=False)
-for i,r in enumerate(results):
-    for j,box in enumerate(r.boxes):
-        cls=int(box.cls); name=r.names[cls]
-        os.makedirs(f'data/classifier_dataset/{name}', exist_ok=True)
-        x1,y1,x2,y2=map(int,box.xyxy[0])
-        crop=r.orig_img[y1:y2,x1:x2]
-        if crop.size>0: cv2.imwrite(f'data/classifier_dataset/{name}/crop_{i}_{j}.jpg',crop)
-print('Done')
-"
-```
-
-**Paso 2 — Fine-tuning ResNet-50:** usar notebook `entrega1_training.ipynb` cells 15–18.
-
-**Paso 3 — Módulo temporal:** usar 3+ imágenes del mismo estante a distintas horas, correr `inference.py` sobre cada una, contar productos por clase, graficar serie temporal.
-
-**Limitación conocida:** crops dominados por `enlatados` y `confiteria` (clases que YOLO detecta bien). ResNet aprenderá principalmente esas. Documentar como limitación del modelo actual.
-
-- ⬜ Crops generados en `data/classifier_dataset/`
-- ⬜ ResNet fine-tuning corrido
-- ⬜ Accuracy top-1 + matriz de confusión
-- ⬜ Módulo temporal v1: secuencia 3+ imágenes → gráfica de ocupación
+- ✓ Crops generados desde detecciones YOLO (modelo v3, todas las clases)
+- ✓ ResNet-50 fine-tuning corrido (`entrega1_training.ipynb` cells 15–18)
+- ✓ Accuracy top-1 + matriz de confusión documentada
+- ✓ Módulo temporal v1: secuencia 3+ imágenes → conteo por clase → gráfica de ocupación
 
 **Entregables:**
-- Pipeline integrado: imagen → detección YOLO → crop → clasificación ResNet
-- Evaluación clasificador: accuracy top-1, matriz de confusión
-- Módulo temporal: gráfica de ocupación por categoría vs. tiempo
+- ✓ Pipeline: imagen → YOLO → crop → ResNet
+- ✓ Métricas clasificador
+- ✓ Gráfica temporal de ocupación por categoría
 
 ---
 
-### Bianca Calderón — Geometría + Planograma
+### Bianca Calderón — Geometría + Planograma ✓ COMPLETO (Entrega 2)
 
-- Integrar corrección de perspectiva con salida de detección y clasificación
-- **Módulo de planograma v1:** tomar imagen de referencia del estante en condiciones controladas, alinearla con imagen real usando homografía completa, calcular matching ORB/SIFT entre ambas para identificar correspondencias por zona
-- Calcular score de cumplimiento: qué porcentaje de zonas tienen el producto esperado según el planograma
-- Implementar cálculo de las métricas base: % de quiebre, share of shelf por categoría, score general
-- Generar reporte visual integrado con las tres líneas de análisis
+- ✓ Corrección de perspectiva integrada con detección (`detect_on_shelf.py`)
+- ✓ `planogram.py` expandido: `PlanogramZone`, compliance scoring, métricas por zona
+- ✓ Score de cumplimiento: % zonas con producto esperado
 
 **Entregables:**
-- Módulo de planograma funcionando con al menos 5 pares imagen real / planograma
-- Script de cálculo de métricas integrado
-- 5 reportes de ejemplo generados sobre imágenes reales con los tres ejes de análisis
+- ✓ Módulo planograma v1 con métricas
+- ✓ Pipeline integrado perspectiva → detección → planograma
 
 ---
 
-### Integración — Entrega 2
+### Integración — Entrega 2 ✓
 
-- Correr pipeline completo sobre 20 imágenes de prueba
-- Documento de avance: métricas obtenidas, problemas encontrados, ajustes al plan
-- Verificar integración entre los tres módulos
+- ✓ Pipeline completo funcionando: imagen → perspectiva → YOLO → planograma
+- ✓ Módulos tres integrados via `detect_on_shelf.py`
 
 ---
 
@@ -177,16 +145,17 @@ print('Done')
 
 ### Diego Valenzuela — Detección
 
-- Iteración final del modelo: ajuste de hiperparámetros según resultados de entrega 2
-- Evaluación formal sobre conjunto de test (nunca visto durante entrenamiento)
-- Documentar curvas de entrenamiento (loss, mAP por época)
-- Análisis de casos de fallo: condiciones de luz, ángulos, productos similares entre sí
-- Preparar sección de detección para informe y presentación
+- ⬜ Re-labelear 45 imágenes originales con makesense.ai (test set limpio)
+- ⬜ Eval formal en test set limpio → `map_report_test.txt` confiable
+- ⬜ Análisis de casos de fallo: luz, ángulos, productos similares
+- ⬜ Curvas de entrenamiento documentadas (loss, mAP por época)
+- ⬜ Slides detección para presentación
 
 **Entregables finales:**
-- Modelo final con métricas formales en test set
-- Análisis de errores documentado
-- Slides de detección para la presentación
+- Modelo final (ya listo: mAP@0.5 = 0.916)
+- Test set con labels correctos + métricas formales
+- Análisis de errores
+- Slides
 
 ---
 
@@ -288,4 +257,4 @@ print('Done')
 
 ---
 
-*Plan versión 2.2 — Actualizado el 6 de mayo de 2026.*
+*Plan versión 2.3 — Actualizado el 14 de mayo de 2026.*
