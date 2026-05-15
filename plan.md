@@ -22,8 +22,8 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | Integrante | Módulo Principal |
 |---|---|
 | **Diego Valenzuela** | Detección — Dataset, YOLOv8, evaluación con mAP/IoU/NMS |
-| **Daniel Dubón** | Clasificación + Análisis temporal — ResNet, ORB/SIFT, predicción de quiebres |
-| **Bianca Calderón** | Geometría + Planograma — Homografía, score de cumplimiento, reporte final |
+| **Daniel Dubón** | Clasificación + Matching + Análisis temporal — ResNet transfer learning, ORB/SIFT para identificación de productos, predicción de quiebres |
+| **Bianca Calderón** | Geometría proyectiva + Planograma — Corrección perspectiva, homografía completa, score de cumplimiento, reporte final |
 
 ---
 
@@ -159,34 +159,40 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-### Daniel Dubón — Clasificación + Análisis Temporal
+### Daniel Dubón — Clasificación + Matching + Análisis Temporal
 
-- Iterar clasificador en categorías con bajo accuracy
-- **Módulo temporal final:** ampliar la secuencia temporal a múltiples días si es posible, refinar predicción de quiebres, calcular error de predicción vs. quiebre real observado
-- Análisis comparativo: ¿en qué zonas o categorías el sistema predice mejor?
-- Evaluar matching ORB: precisión en identificación de productos conocidos vs. desconocidos
-- Preparar sección de clasificación y análisis temporal para informe y presentación
+- ⬜ Iterar ResNet en categorías con bajo accuracy (mejorar con modelo v3)
+- ⬜ **ORB/SIFT matching:** identificar productos conocidos vs. desconocidos por descriptor visual — precisión top-1 y top-5
+- ⬜ **Módulo temporal final:**
+  - Ampliar secuencia a múltiples días o franjas horarias
+  - Detectar qué categorías rotan más rápido y en qué franja horaria se concentran quiebres
+  - Predicción de quiebre: calcular error de predicción (T_pred vs. T_real observado)
+- ⬜ Slides clasificación + temporal para presentación
 
 **Entregables finales:**
-- Clasificador final con evaluación completa
-- Módulo temporal con análisis de patrones y métricas de predicción
-- Slides correspondientes
+- Clasificador ResNet con accuracy top-1 + matriz de confusión final
+- ORB/SIFT matching: métricas de identificación de productos
+- Módulo temporal: gráfica de rotación por categoría, franjas horarias, error de predicción
+- Slides
 
 ---
 
-### Bianca Calderón — Geometría + Planograma
+### Bianca Calderón — Geometría Proyectiva + Planograma
 
-- Afinar corrección de perspectiva en casos difíciles (fotos muy anguladas, distorsión de lente)
-- **Módulo de planograma final:** evaluar score de cumplimiento sobre 10+ pares reales, calcular correlación entre score de cumplimiento y quiebre detectado
-- Validar métricas contra ground truth manual: contar físicamente productos y espacios en 10 imágenes y comparar con lo que el sistema reporta
-- Calcular error absoluto en % de quiebre y share of shelf
-- Generar conjunto final de reportes para la presentación
+- ⬜ Afinar corrección de perspectiva en casos difíciles (fotos anguladas, distorsión de lente)
+- ⬜ **Planograma final:** evaluar score de cumplimiento sobre 10+ pares imagen real / planograma de referencia
+- ⬜ Calcular correlación entre score de cumplimiento y quiebre detectado
+- ⬜ Validar contra ground truth manual: contar físicamente productos en 10 imágenes, comparar con sistema
+- ⬜ Calcular error absoluto: % quiebre y share of shelf vs. conteo manual
+- ⬜ Generar reportes visuales finales con los tres ejes integrados
+- ⬜ Slides geometría + planograma para presentación
 
 **Entregables finales:**
-- Validación de métricas con ground truth manual
-- Evaluación del módulo de planograma con correlación entre cumplimiento y quiebre
-- Conjunto final de reportes visuales
-- Slides de geometría y métricas
+- Planograma validado sobre 10+ pares reales con score de cumplimiento
+- Correlación score cumplimiento vs. quiebre detectado
+- Error absoluto en % quiebre y share of shelf vs. ground truth
+- Reportes visuales finales
+- Slides
 
 ---
 
@@ -230,7 +236,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | Filtrado y convolución | Preprocesamiento de imágenes en los tres módulos |
 | Transformadas de Fourier | Análisis de textura para detección de zonas vacías |
 | Morfología | Limpieza de regiones detectadas |
-| Harris / SIFT / ORB | Matching planograma vs. realidad (Bianca + Daniel) |
+| Harris / SIFT / ORB | Matching de productos por descriptor visual (Daniel) + alineación planograma (Bianca) |
 | Geometría proyectiva y homografías | Corrección de perspectiva y alineación de planograma (Bianca) |
 | CNNs y transfer learning | Clasificación por categoría con ResNet (Daniel) |
 | Arquitecturas modernas (ResNet) | Backbone del clasificador (Daniel) |
@@ -249,7 +255,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | OpenCV | Homografía, ORB/SIFT, procesamiento de imagen |
 | makesense.ai | Anotación del dataset (browser, formato YOLO) |
 | YOLO-World | Pre-etiquetado automático zero-shot para acelerar anotación |
-| SKU110K | Dataset público complementario |
+| Open Images v7 (fiftyone) | Dataset público con labels — reemplazó SKU110K |
 | Pandas + Matplotlib | Análisis temporal y visualización |
 | Scikit-learn | Regresión para predicción de quiebres |
 | PIL / Matplotlib | Generación de reportes visuales |
