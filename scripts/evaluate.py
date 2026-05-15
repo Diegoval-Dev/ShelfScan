@@ -24,7 +24,7 @@ DATA_YAML = Path("data/dataset.yaml").resolve()
 DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/best.pt"
 
 
-def evaluate(model_path: str, iou: float, conf: float) -> None:
+def evaluate(model_path: str, iou: float, conf: float, split: str) -> None:
     if not Path(model_path).exists():
         raise SystemExit(f"Model not found: {model_path}")
     if not DATA_YAML.exists():
@@ -32,10 +32,10 @@ def evaluate(model_path: str, iou: float, conf: float) -> None:
 
     model = YOLO(model_path)
 
-    print("=== Evaluating on TEST set ===\n")
+    print(f"=== Evaluating on {split.upper()} set ===\n")
     metrics = model.val(
         data=str(DATA_YAML),
-        split="test",
+        split=split,
         iou=iou,
         conf=conf,
         verbose=True,
@@ -47,7 +47,7 @@ def evaluate(model_path: str, iou: float, conf: float) -> None:
     recall     = metrics.box.mr
     per_class  = metrics.box.maps
 
-    print("\n=== ShelfScan v1 — Formal Metrics (Test Set) ===")
+    print(f"\n=== ShelfScan v1 — Formal Metrics ({split.upper()} Set) ===")
     print(f"  mAP@0.5:       {map50:.4f}")
     print(f"  mAP@0.5:0.95:  {map5095:.4f}")
     print(f"  Precision:     {precision:.4f}")
@@ -69,9 +69,9 @@ def evaluate(model_path: str, iou: float, conf: float) -> None:
         print("  → Add more annotated samples for these classes.")
 
     report_dir = Path(model_path).parent.parent
-    report_path = report_dir / "map_report_test.txt"
+    report_path = report_dir / f"map_report_{split}.txt"
     with open(report_path, "w") as f:
-        f.write("ShelfScan v1 — Formal mAP Report — Test Set (Entrega 2)\n")
+        f.write(f"ShelfScan v1 — Formal mAP Report — {split.upper()} Set\n")
         f.write("=" * 55 + "\n")
         f.write(f"mAP@0.5:      {map50:.4f}\n")
         f.write(f"mAP@0.5:0.95: {map5095:.4f}\n")
@@ -93,10 +93,11 @@ def evaluate(model_path: str, iou: float, conf: float) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=str(DEFAULT_MODEL))
-    parser.add_argument("--iou",  type=float, default=0.5)
-    parser.add_argument("--conf", type=float, default=0.25)
+    parser.add_argument("--iou",   type=float, default=0.5)
+    parser.add_argument("--conf",  type=float, default=0.25)
+    parser.add_argument("--split", default="val", choices=["train", "val", "test"])
     args = parser.parse_args()
-    evaluate(args.model, args.iou, args.conf)
+    evaluate(args.model, args.iou, args.conf, args.split)
 
 
 if __name__ == "__main__":

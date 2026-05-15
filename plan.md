@@ -3,7 +3,7 @@
 **Curso:** Visión por Computadora  
 **Grupo:** Diego Valenzuela · Daniel Dubón · Bianca Calderón  
 **Catedrático:** Alberto Suriano  
-**Versión:** 2.3 — Entrega 2 completa, Entrega Final en progreso
+**Versión:** 2.5 — Entrega 2 completa, Entrega Final en progreso
 
 ---
 
@@ -95,7 +95,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | zona_vacia | 0.952 ✓ | 0.871 |
 | **all** | **0.916** ✓ | **0.711** |
 
-> Nota: eval local muestra 0.208 — test set local tiene labels basura de YOLO-World (65 latas/imagen). Métricas reales son las de NVIDIA. Para Entrega Final: re-labelear 45 imágenes originales con makesense.ai.
+> Nota: `shuffle=True` en `download_openimages.py` hace que cada máquina descargue imágenes distintas de Open Images. El val set de NVIDIA y el local son muestras diferentes → métricas distintas. Las métricas oficiales son las del entrenamiento en NVIDIA (0.916). Para Entrega Final: el compañero con acceso NVIDIA debe correr `evaluate.py --split val` en su máquina para generar el `map_report_val.txt` formal con las métricas reales.
 
 **Entregables:**
 - ✓ Modelo .pt (mAP@0.5 = 0.916)
@@ -145,17 +145,26 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ### Diego Valenzuela — Detección
 
-- ⬜ Re-labelear 45 imágenes originales con makesense.ai (test set limpio)
-- ⬜ Eval formal en test set limpio → `map_report_test.txt` confiable
-- ⬜ Análisis de casos de fallo: luz, ángulos, productos similares
-- ⬜ Curvas de entrenamiento documentadas (loss, mAP por época)
+- ✓ Análisis de casos de fallo — `scripts/error_analysis.py`, output en `data/results/error_analysis/`
+- ✓ Curvas de entrenamiento documentadas — `scripts/plot_training_curves.py`, output en `data/results/training_curves/`
 - ⬜ Slides detección para presentación
 
+### Compañero NVIDIA — Eval formal + métricas finales
+
+> **Contexto:** `shuffle=True` en `download_openimages.py` hace que cada máquina descargue imágenes distintas. El val set con métricas reales (0.916) solo existe en la máquina NVIDIA. Toda la eval formal se corre ahí para garantizar calidad.
+
+- ⬜ Correr `python scripts/evaluate.py --split val` → genera `map_report_val.txt`
+- ⬜ Correr `python scripts/error_analysis.py` con el `nvidia_best.pt` para análisis de fallos real
+- ⬜ Correr `python scripts/plot_training_curves.py` con el `results.csv` del entrenamiento NVIDIA
+- ⬜ Subir al repo: `map_report_val.txt`, plots de `data/results/`
+- ⬜ Slides detección (métricas, curvas, análisis de errores)
+
 **Entregables finales:**
-- Modelo final (ya listo: mAP@0.5 = 0.916)
-- Test set con labels correctos + métricas formales
-- Análisis de errores
-- Slides
+- ✓ Modelo final (`nvidia_best.pt` — mAP@0.5 = 0.916 en val NVIDIA)
+- ⬜ `map_report_val.txt` con métricas formales por clase
+- ⬜ Curvas de entrenamiento reales (del `results.csv` de NVIDIA)
+- ⬜ Análisis de errores sobre val set real
+- ⬜ Slides detección
 
 ---
 
@@ -263,4 +272,4 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 
 ---
 
-*Plan versión 2.3 — Actualizado el 14 de mayo de 2026.*
+*Plan versión 2.5 — Actualizado el 15 de mayo de 2026.*
