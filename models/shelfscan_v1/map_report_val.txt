@@ -1,0 +1,20 @@
+ShelfScan v1 — Formal mAP Report — VAL Set
+=======================================================
+mAP@0.5:      0.8559
+mAP@0.5:0.95: 0.6641
+Precision:    0.9209
+Recall:       0.8519
+IoU:          0.5
+Conf:         0.25
+
+Per-class mAP@0.5:
+  bebidas        : 0.6222
+  lacteos        : 0.7376
+  snacks         : 0.5517
+  cereales       : 0.6641
+  limpieza       : 0.6641
+  enlatados      : 0.6991
+  aceites        : 0.7115
+  higiene        : 0.6521
+  confiteria     : 0.6931
+  zona_vacia     : 0.6455
