@@ -1,8 +1,8 @@
 {
   "image_path": "data/test_001.jpg",
-  "warped_path": "data/planogram_results_debug2/test_001_warped.jpg",
-  "annotated_path": "data/planogram_results_debug2/test_001_detected.jpg",
-  "report_path": "data/planogram_results_debug2/test_001_report.png",
+  "warped_path": "data/planogram_results_final/test_001_warped.jpg",
+  "annotated_path": "data/planogram_results_final/test_001_detected.jpg",
+  "report_path": "data/planogram_results_final/test_001_report.png",
   "perspective_points": [
     [
       0.0,
@@ -164,6 +164,479 @@
         4483,
         1979
       ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.1,
+      "bbox": [
+        2985,
+        1969,
+        3317,
+        2342
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0958,
+      "bbox": [
+        2187,
+        2648,
+        2501,
+        2879
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0936,
+      "bbox": [
+        2569,
+        2877,
+        2907,
+        3252
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0934,
+      "bbox": [
+        4977,
+        143,
+        5338,
+        329
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0933,
+      "bbox": [
+        2976,
+        2680,
+        3296,
+        2887
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0879,
+      "bbox": [
+        3745,
+        1977,
+        4096,
+        2169
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0878,
+      "bbox": [
+        1415,
+        2845,
+        1742,
+        3036
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0871,
+      "bbox": [
+        2980,
+        1740,
+        3320,
+        2346
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0864,
+      "bbox": [
+        4112,
+        1980,
+        4479,
+        2362
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0842,
+      "bbox": [
+        4179,
+        674,
+        4548,
+        881
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0788,
+      "bbox": [
+        278,
+        1762,
+        655,
+        1959
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0784,
+      "bbox": [
+        3752,
+        1054,
+        4131,
+        1265
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0781,
+      "bbox": [
+        4537,
+        125,
+        4996,
+        551
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0771,
+      "bbox": [
+        4946,
+        3,
+        5326,
+        134
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0746,
+      "bbox": [
+        654,
+        2798,
+        1023,
+        3038
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0736,
+      "bbox": [
+        3365,
+        844,
+        3720,
+        1080
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0707,
+      "bbox": [
+        240,
+        1261,
+        643,
+        1459
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0705,
+      "bbox": [
+        3761,
+        2507,
+        4096,
+        2690
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0703,
+      "bbox": [
+        4184,
+        124,
+        4558,
+        337
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0682,
+      "bbox": [
+        236,
+        870,
+        606,
+        1061
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0669,
+      "bbox": [
+        2988,
+        1224,
+        3330,
+        1457
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0668,
+      "bbox": [
+        3772,
+        1581,
+        4096,
+        1780
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0659,
+      "bbox": [
+        2187,
+        2877,
+        2496,
+        3059
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.065,
+      "bbox": [
+        3754,
+        850,
+        4122,
+        1059
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0641,
+      "bbox": [
+        4548,
+        1265,
+        4915,
+        1470
+      ]
+    },
+    {
+      "class_id": 54,
+      "class_name": "confiteria",
+      "confidence": 0.0635,
+      "bbox": [
+        5367,
+        678,
+        5564,
+        857
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0627,
+      "bbox": [
+        4533,
+        3,
+        4977,
+        128
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0608,
+      "bbox": [
+        1021,
+        678,
+        1378,
+        874
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0597,
+      "bbox": [
+        5310,
+        2892,
+        5564,
+        3087
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0594,
+      "bbox": [
+        0,
+        339,
+        270,
+        565
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0593,
+      "bbox": [
+        2551,
+        1954,
+        2914,
+        2348
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0588,
+      "bbox": [
+        4893,
+        1782,
+        5319,
+        1985
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0581,
+      "bbox": [
+        4579,
+        679,
+        4911,
+        885
+      ]
+    },
+    {
+      "class_id": 54,
+      "class_name": "confiteria",
+      "confidence": 0.0579,
+      "bbox": [
+        4572,
+        329,
+        4958,
+        553
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0562,
+      "bbox": [
+        3765,
+        2891,
+        4098,
+        3100
+      ]
+    },
+    {
+      "class_id": 54,
+      "class_name": "confiteria",
+      "confidence": 0.0548,
+      "bbox": [
+        4585,
+        152,
+        4982,
+        339
+      ]
+    },
+    {
+      "class_id": 54,
+      "class_name": "confiteria",
+      "confidence": 0.0539,
+      "bbox": [
+        5302,
+        1273,
+        5564,
+        1476
+      ]
+    },
+    {
+      "class_id": 54,
+      "class_name": "confiteria",
+      "confidence": 0.0537,
+      "bbox": [
+        3385,
+        681,
+        3710,
+        861
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0537,
+      "bbox": [
+        3753,
+        1048,
+        4141,
+        1471
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0535,
+      "bbox": [
+        4117,
+        872,
+        4532,
+        1070
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0527,
+      "bbox": [
+        2982,
+        2487,
+        3301,
+        2687
+      ]
+    },
+    {
+      "class_id": 54,
+      "class_name": "confiteria",
+      "confidence": 0.0511,
+      "bbox": [
+        2989,
+        1224,
+        3330,
+        1458
+      ]
+    },
+    {
+      "class_id": 55,
+      "class_name": "confiteria",
+      "confidence": 0.0505,
+      "bbox": [
+        5359,
+        858,
+        5564,
+        1060
+      ]
     }
   ],
   "compliance": {
@@ -175,6 +648,9 @@
         "expected": "bebidas",
         "detected_products": [
           "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
           "confiteria"
         ],
         "compliant": false,
@@ -182,13 +658,30 @@
       },
       "Z02": {
         "expected": "lacteos",
-        "detected_products": [],
+        "detected_products": [
+          "confiteria",
+          "confiteria"
+        ],
         "compliant": false,
-        "confidence": 0
+        "confidence": 0.0736
       },
       "Z03": {
         "expected": "snacks",
         "detected_products": [
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
           "confiteria",
           "confiteria",
           "confiteria",
@@ -200,13 +693,21 @@
       },
       "Z04": {
         "expected": "cereales",
-        "detected_products": [],
+        "detected_products": [
+          "confiteria",
+          "confiteria"
+        ],
         "compliant": false,
-        "confidence": 0
+        "confidence": 0.0788
       },
       "Z05": {
         "expected": "limpieza",
         "detected_products": [
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
           "confiteria"
         ],
         "compliant": false,
@@ -216,6 +717,13 @@
         "expected": "enlatados",
         "detected_products": [
           "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
           "confiteria"
         ],
         "compliant": false,
@@ -223,13 +731,21 @@
       },
       "Z07": {
         "expected": "aceites",
-        "detected_products": [],
+        "detected_products": [
+          "confiteria",
+          "confiteria"
+        ],
         "compliant": false,
-        "confidence": 0
+        "confidence": 0.0878
       },
       "Z08": {
         "expected": "higiene",
         "detected_products": [
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
+          "confiteria",
           "confiteria",
           "confiteria"
         ],
@@ -239,6 +755,9 @@
       "Z09": {
         "expected": "confiteria",
         "detected_products": [
+          "confiteria",
+          "confiteria",
+          "confiteria",
           "confiteria"
         ],
         "compliant": true,
@@ -256,7 +775,7 @@
       "enlatados": 1.0,
       "aceites": 1.0,
       "higiene": 1.0,
-      "confiteria": 0.5527745055627655
+      "confiteria": 0
     },
     "share_of_shelf_expected": {
       "bebidas": 0.11108061121786074,
@@ -270,9 +789,9 @@
       "confiteria": 0.11117211089761186
     },
     "share_of_shelf_actual": {
-      "confiteria": 0.04971900226381553
+      "confiteria": 0.22567969340948277
     },
-    "general_score": 0.08040141635762413,
+    "general_score": 0.05388873482980168,
     "total_shelf_area": 20273295
   }
 }

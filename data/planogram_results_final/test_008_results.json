@@ -1,8 +1,8 @@
 {
-  "image_path": "data/test_002.jpg",
-  "warped_path": "data/planogram_results_final/test_002_warped.jpg",
-  "annotated_path": "data/planogram_results_final/test_002_detected.jpg",
-  "report_path": "data/planogram_results_final/test_002_report.png",
+  "image_path": "data/test_008.jpg",
+  "warped_path": "data/planogram_results_final/test_008_warped.jpg",
+  "annotated_path": "data/planogram_results_final/test_008_detected.jpg",
+  "report_path": "data/planogram_results_final/test_008_report.png",
   "perspective_points": [
     [
       0.0,
