@@ -1,0 +1,130 @@
+{
+  "image_name": "0226ce80c72feb67.jpg",
+  "image_path": "data/planogram_audit_set/0226ce80c72feb67.jpg",
+  "warped_path": "data/planogram_results_real/0226ce80c72feb67_warped.jpg",
+  "annotated_path": "data/planogram_results_real/0226ce80c72feb67_detected.jpg",
+  "report_path": "data/planogram_results_real/0226ce80c72feb67_report.png",
+  "perspective_points": [
+    [
+      -40.54545593261719,
+      -322.5454406738281
+    ],
+    [
+      482.7850341796875,
+      103.21495056152344
+    ],
+    [
+      1057.0,
+      775.0
+    ],
+    [
+      -189.0,
+      775.0
+    ]
+  ],
+  "detections": [
+    {
+      "class_id": 7,
+      "class_name": "zona_vacia",
+      "confidence": 0.3885,
+      "bbox": [
+        30,
+        25,
+        5564,
+        3642
+      ]
+    }
+  ],
+  "compliance": {
+    "overall_compliance": 0.0,
+    "compliant_zones": 0,
+    "total_zones": 9,
+    "zone_details": {
+      "Z01": {
+        "expected": "bebidas",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z02": {
+        "expected": "lacteos",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z03": {
+        "expected": "snacks",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z04": {
+        "expected": "cereales",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z05": {
+        "expected": "limpieza",
+        "detected_products": [
+          "zona_vacia"
+        ],
+        "compliant": false,
+        "confidence": 0.3885
+      },
+      "Z06": {
+        "expected": "enlatados",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z07": {
+        "expected": "aceites",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z08": {
+        "expected": "higiene",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z09": {
+        "expected": "confiteria",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      }
+    }
+  },
+  "metrics": {
+    "breakage_by_category": {
+      "bebidas": 1.0,
+      "lacteos": 1.0,
+      "snacks": 1.0,
+      "cereales": 1.0,
+      "limpieza": 1.0,
+      "enlatados": 1.0,
+      "aceites": 1.0,
+      "higiene": 1.0,
+      "confiteria": 1.0
+    },
+    "share_of_shelf_expected": {
+      "bebidas": 0.11108061121786074,
+      "lacteos": 0.11108061121786074,
+      "snacks": 0.11108061121786074,
+      "cereales": 0.11108061121786074,
+      "limpieza": 0.11108061121786074,
+      "enlatados": 0.11108061121786074,
+      "aceites": 0.11117211089761186,
+      "higiene": 0.11117211089761186,
+      "confiteria": 0.11117211089761186
+    },
+    "share_of_shelf_actual": {
+      "zona_vacia": 0.9873322516147474
+    },
+    "general_score": 0.0,
+    "total_shelf_area": 20273295
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "image_name": "003232584a062b07.jpg",
+  "image_path": "data/planogram_audit_set/003232584a062b07.jpg",
+  "warped_path": "data/planogram_results_real/003232584a062b07_warped.jpg",
+  "annotated_path": "data/planogram_results_real/003232584a062b07_detected.jpg",
+  "report_path": "data/planogram_results_real/003232584a062b07_report.png",
+  "perspective_points": [
+    [
+      229.0,
+      112.54717254638672
+    ],
+    [
+      1118.827392578125,
+      36.995784759521484
+    ],
+    [
+      964.0165405273438,
+      706.0
+    ],
+    [
+      229.0,
+      706.0
+    ]
+  ],
+  "detections": [
+    {
+      "class_id": 5,
+      "class_name": "zona_vacia",
+      "confidence": 0.9354,
+      "bbox": [
+        3,
+        699,
+        887,
+        2413
+      ]
+    },
+    {
+      "class_id": 5,
+      "class_name": "zona_vacia",
+      "confidence": 0.9269,
+      "bbox": [
+        2214,
+        246,
+        3613,
+        1980
+      ]
+    },
+    {
+      "class_id": 0,
+      "class_name": "zona_vacia",
+      "confidence": 0.9167,
+      "bbox": [
+        3876,
+        743,
+        5061,
+        2056
+      ]
+    },
+    {
+      "class_id": 0,
+      "class_name": "zona_vacia",
+      "confidence": 0.9058,
+      "bbox": [
+        2197,
+        244,
+        3624,
+        1949
+      ]
+    },
+    {
+      "class_id": 0,
+      "class_name": "zona_vacia",
+      "confidence": 0.8818,
+      "bbox": [
+        260,
+        0,
+        2411,
+        2882
+      ]
+    },
+    {
+      "class_id": 0,
+      "class_name": "zona_vacia",
+      "confidence": 0.8795,
+      "bbox": [
+        3,
+        710,
+        942,
+        2437
+      ]
+    },
+    {
+      "class_id": 0,
+      "class_name": "zona_vacia",
+      "confidence": 0.8723,
+      "bbox": [
+        1537,
+        1998,
+        2631,
+        3642
+      ]
+    },
+    {
+      "class_id": 5,
+      "class_name": "zona_vacia",
+      "confidence": 0.6996,
+      "bbox": [
+        3870,
+        732,
+        5078,
+        2047
+      ]
+    }
+  ],
+  "compliance": {
+    "overall_compliance": 0.0,
+    "compliant_zones": 0,
+    "total_zones": 9,
+    "zone_details": {
+      "Z01": {
+        "expected": "bebidas",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z02": {
+        "expected": "lacteos",
+        "detected_products": [
+          "zona_vacia",
+          "zona_vacia"
+        ],
+        "compliant": false,
+        "confidence": 0.9269
+      },
+      "Z03": {
+        "expected": "snacks",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z04": {
+        "expected": "cereales",
+        "detected_products": [
+          "zona_vacia",
+          "zona_vacia",
+          "zona_vacia"
+        ],
+        "compliant": false,
+        "confidence": 0.9354
+      },
+      "Z05": {
+        "expected": "limpieza",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z06": {
+        "expected": "enlatados",
+        "detected_products": [
+          "zona_vacia",
+          "zona_vacia"
+        ],
+        "compliant": false,
+        "confidence": 0.9167
+      },
+      "Z07": {
+        "expected": "aceites",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      },
+      "Z08": {
+        "expected": "higiene",
+        "detected_products": [
+          "zona_vacia"
+        ],
+        "compliant": false,
+        "confidence": 0.8723
+      },
+      "Z09": {
+        "expected": "confiteria",
+        "detected_products": [],
+        "compliant": false,
+        "confidence": 0
+      }
+    }
+  },
+  "metrics": {
+    "breakage_by_category": {
+      "bebidas": 1.0,
+      "lacteos": 1.0,
+      "snacks": 1.0,
+      "cereales": 1.0,
+      "limpieza": 1.0,
+      "enlatados": 1.0,
+      "aceites": 1.0,
+      "higiene": 1.0,
+      "confiteria": 1.0
+    },
+    "share_of_shelf_expected": {
+      "bebidas": 0.11108061121786074,
+      "lacteos": 0.11108061121786074,
+      "snacks": 0.11108061121786074,
+      "cereales": 0.11108061121786074,
+      "limpieza": 0.11108061121786074,
+      "enlatados": 0.11108061121786074,
+      "aceites": 0.11117211089761186,
+      "higiene": 0.11117211089761186,
+      "confiteria": 0.11117211089761186
+    },
+    "share_of_shelf_actual": {
+      "zona_vacia": 0.9439942051847023
+    },
+    "general_score": 0.0,
+    "total_shelf_area": 20273295
+  }
+}
