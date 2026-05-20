@@ -296,12 +296,12 @@ def create_visual_report(planogram: PlanogramReference, real_image: np.ndarray,
 
     # 6. Summary metrics
     axes[1, 2].axis('off')
-    summary_text = ".2f"".2f"".2f"f"""
-    Score General: {metrics['general_score']:.2f}
-    Cumplimiento: {compliance['overall_compliance']:.2f}
-    Zonas Compliant: {compliance['compliant_zones']}/{compliance['total_zones']}
-    Área Total Estante: {metrics['total_shelf_area']} px²
-    """
+    summary_text = (
+        f"Score General: {metrics['general_score']:.2f}\n"
+        f"Cumplimiento: {compliance['overall_compliance']:.2f}\n"
+        f"Zonas Compliant: {compliance['compliant_zones']}/{compliance['total_zones']}\n"
+        f"Área Total Estante: {metrics['total_shelf_area']} px²\n"
+    )
     axes[1, 2].text(0.1, 0.8, summary_text, fontsize=12, verticalalignment='top',
                    bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue"))
 

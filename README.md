@@ -87,6 +87,35 @@ python scripts/inference.py ruta/imagen.jpg
 python scripts/inference.py ruta/imagen.jpg models/shelfscan_v1/weights/best.pt
 ```
 
+## Planograma y validación
+
+### 1. Crear o cargar un planograma de referencia
+```bash
+python scripts/planogram_analysis.py --reference data/planogram_reference.jpg --output data/planogram_results
+```
+
+### 2. Procesar imágenes reales con el planograma
+```bash
+python scripts/planogram_analysis.py --batch-dir data/raw --planogram data/planogram_results/planogram.json --output data/planogram_results
+```
+
+### 3. Validar contra ground truth manual
+`ground_truth.csv` debe tener columnas:
+`image_name,category,manual_count,manual_share,manual_breakage`
+
+```bash
+python scripts/planogram_validation.py \
+  --results-dir data/planogram_results \
+  --ground-truth data/ground_truth.csv \
+  --output-dir data/planogram_validation \
+  --save-json data/planogram_validation/validation_summary.json
+```
+
+### 4. Resultados
+- Reporte visual por imagen en `data/planogram_results`
+- Resumen de validación en `data/planogram_validation/validation_summary.json`
+- Gráfica de correlación en `data/planogram_validation/validation_report.png`
+
 ## Corrección de perspectiva
 
 ```bash

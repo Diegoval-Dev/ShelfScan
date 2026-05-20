@@ -6,6 +6,7 @@ Generates comprehensive visual reports with all three analysis axes.
 """
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -16,7 +17,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
 from planogram import PlanogramReference, PlanogramZone, create_visual_report, save_planogram_to_json
-from perspective import select_points_interactive, parse_points
+from perspective import auto_detect_corners, select_points_interactive, parse_points
 
 
 def map_yolo_world_class(cls_id: int, class_names: Dict[int, str]) -> str:
@@ -62,6 +63,15 @@ def map_yolo_world_class(cls_id: int, class_names: Dict[int, str]) -> str:
     }
 
     return mapping.get(yolo_class, 'zona_vacia')
+
+
+def compute_image_hash(image_path: Path) -> str:
+    """Compute MD5 hash for an image file to detect duplicates."""
+    hasher = hashlib.md5()
+    with image_path.open('rb') as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 
 def create_sample_planogram(reference_image_path: Path, output_json_path: Path) -> PlanogramReference:
@@ -123,7 +133,8 @@ def create_sample_planogram(reference_image_path: Path, output_json_path: Path) 
 
 def process_single_image(image_path: Path, planogram: PlanogramReference,
                         points: np.ndarray | None, output_dir: Path,
-                        model_path: str) -> Dict:
+                        model_path: str, conf: float = 0.1,
+                        auto_points: bool = False) -> Dict:
     """Procesa una imagen individual y genera análisis completo."""
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -131,6 +142,19 @@ def process_single_image(image_path: Path, planogram: PlanogramReference,
     img = cv2.imread(str(image_path))
     if img is None:
         raise FileNotFoundError(f"No se pudo cargar la imagen: {image_path}")
+
+    if points is None and auto_points:
+        try:
+            points = auto_detect_corners(img)
+            print(f"Esquinas detectadas automáticamente para {image_path.name}: {points.tolist()}")
+        except Exception as e:
+            print(f"Advertencia: no se pudieron detectar puntos automáticamente para {image_path.name}: {e}")
+            try:
+                points = select_points_interactive(image_path)
+                print(f"Esquinas seleccionadas manualmente para {image_path.name}: {points.tolist()}")
+            except Exception as e2:
+                print(f"No se pudo seleccionar manualmente: {e2}")
+                points = None
 
     # Para imágenes ya corregidas, usar puntos por defecto
     if points is None:
@@ -153,7 +177,7 @@ def process_single_image(image_path: Path, planogram: PlanogramReference,
         model = YOLO(model_path)
         results = model.predict(
             source=warped,  # Pasar imagen directamente en lugar de path
-            conf=0.1,  # Bajamos el threshold para detectar más objetos
+            conf=conf,  # Umbral configurable para detecciones
             verbose=False,
             classes=None  # Detectar todas las clases
         )
@@ -197,6 +221,7 @@ def process_single_image(image_path: Path, planogram: PlanogramReference,
 
     # Guardar resultados como JSON
     results = {
+        'image_name': image_path.name,
         'image_path': str(image_path),
         'warped_path': str(warped_path),
         'annotated_path': str(annotated_path),
@@ -216,12 +241,12 @@ def process_single_image(image_path: Path, planogram: PlanogramReference,
     print(f"  - Imagen anotada: {annotated_path}")
     print(f"  - Reporte visual: {report_path}")
     print(f"  - Resultados JSON: {results_path}")
-    print(".2f")
     return results
 
 
 def run_batch_analysis(image_dir: Path, planogram_json: Path, output_dir: Path,
-                      model_path: str, points_file: Path | None = None) -> List[Dict]:
+                      model_path: str, points_file: Path | None = None, conf: float = 0.1,
+                      auto_points: bool = False) -> List[Dict]:
     """Ejecuta análisis por lotes sobre múltiples imágenes."""
     # Cargar planograma
     planogram = load_planogram_from_json(planogram_json)
@@ -241,11 +266,25 @@ def run_batch_analysis(image_dir: Path, planogram_json: Path, output_dir: Path,
         print(f"No se encontraron imágenes en: {image_dir}")
         return []
 
+    # Detectar imágenes duplicadas en el lote
+    hashes = {}
+    for img_path in sorted(images):
+        image_hash = compute_image_hash(img_path)
+        hashes.setdefault(image_hash, []).append(img_path.name)
+
+    duplicate_groups = [names for names in hashes.values() if len(names) > 1]
+    if duplicate_groups:
+        print("Advertencia: se detectaron imágenes duplicadas en el lote:")
+        for group in duplicate_groups:
+            print(f"  - {', '.join(group)}")
+        print("Esto puede generar métricas idénticas y resultados de correlación no significativos.")
+
     results = []
     for img_path in sorted(images):
         try:
             result = process_single_image(img_path, planogram, default_points,
-                                        output_dir, model_path)
+                                        output_dir, model_path, conf=conf,
+                                        auto_points=auto_points)
             results.append(result)
         except Exception as e:
             print(f"Error procesando {img_path.name}: {e}")
@@ -263,9 +302,9 @@ def generate_batch_summary(results: List[Dict], output_dir: Path) -> None:
         return
 
     summary = {
-        'total_images': len(results),
-        'average_compliance': np.mean([r['compliance']['overall_compliance'] for r in results]),
-        'average_general_score': np.mean([r['metrics']['general_score'] for r in results]),
+        'total_images': int(len(results)),
+        'average_compliance': float(np.mean([r['compliance']['overall_compliance'] for r in results])),
+        'average_general_score': float(np.mean([r['metrics']['general_score'] for r in results])),
         'breakage_by_category': {},
         'compliance_distribution': []
     }
@@ -282,10 +321,10 @@ def generate_batch_summary(results: List[Dict], output_dir: Path) -> None:
             for r in results
         ]
         summary['breakage_by_category'][cat] = {
-            'mean': np.mean(breakage_values),
-            'std': np.std(breakage_values),
-            'min': np.min(breakage_values),
-            'max': np.max(breakage_values)
+            'mean': float(np.mean(breakage_values)),
+            'std': float(np.std(breakage_values)),
+            'min': float(np.min(breakage_values)),
+            'max': float(np.max(breakage_values))
         }
 
     # Distribución de compliance
@@ -302,7 +341,6 @@ def generate_batch_summary(results: List[Dict], output_dir: Path) -> None:
 
     print(f"Resumen del lote guardado en: {summary_path}")
     print(f"Imágenes procesadas: {summary['total_images']}")
-    print(".2f")
 def load_planogram_from_json(json_path: Path):
     """Carga un planograma desde un archivo JSON."""
     with open(json_path, 'r', encoding='utf-8') as f:
@@ -340,6 +378,10 @@ def main() -> None:
                        help="Directorio de salida")
     parser.add_argument("--model", type=str, default="yolov8s-worldv2.pt",
                        help="Ruta al modelo YOLO (por defecto YOLO-World)")
+    parser.add_argument("--conf", type=float, default=0.1,
+                       help="Umbral de confianza para detecciones (e.g., 0.05)")
+    parser.add_argument("--auto-points", action='store_true',
+                       help="Detectar automáticamente las 4 esquinas del estante para alinear la imagen.")
     parser.add_argument("--points", nargs=4, help="Puntos de perspectiva (x,y x,y x,y x,y)")
     parser.add_argument("--points-file", type=Path,
                        help="Archivo JSON con puntos de perspectiva predefinidos")
@@ -360,7 +402,7 @@ def main() -> None:
         planogram_path = args.output / "planogram.json"
         planogram = create_sample_planogram(args.reference, planogram_path)
     elif args.planogram and args.planogram.exists():
-        # Cargar planograma existente
+        planogram_path = args.planogram
         planogram = load_planogram_from_json(args.planogram)
     else:
         print("Error: Debe proporcionar una imagen de referencia (--reference) o un archivo de planograma existente (--planogram)")
@@ -368,12 +410,14 @@ def main() -> None:
 
     # Procesar imagen individual
     if args.image:
-        process_single_image(args.image, planogram, points, args.output, args.model)
+        process_single_image(args.image, planogram, points, args.output, args.model,
+                             conf=args.conf, auto_points=args.auto_points)
 
     # Procesamiento por lotes
     elif args.batch_dir:
-        run_batch_analysis(args.batch_dir, planogram.reference_image_path.parent / "planogram.json",
-                          args.output, args.model, args.points_file)
+        run_batch_analysis(args.batch_dir, planogram_path,
+                          args.output, args.model, args.points_file,
+                          conf=args.conf, auto_points=args.auto_points)
 
     else:
         print("Debe especificar --image o --batch-dir para procesar imágenes")
