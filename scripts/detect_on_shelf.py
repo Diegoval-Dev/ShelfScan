@@ -17,22 +17,29 @@ from pathlib import Path
 import cv2
 
 sys.path.insert(0, str(Path(__file__).parent))
-from perspective import warp_perspective_image, select_points_interactive, parse_points
+from perspective import warp_perspective_image, select_points_interactive, parse_points, auto_detect_corners
 from inference import run_inference
 
-DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/nvidia_best.pt"
+DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/best.pt"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
 
 
-def process(image_path: Path, points_arg: list[str] | None, output_dir: Path, model: str) -> dict:
+def process(image_path: Path, points_arg: list[str] | None, output_dir: Path, model: str, auto: bool = False) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    img = cv2.imread(str(image_path))
+    if img is None:
+        raise FileNotFoundError(f"No se pudo abrir la imagen: {image_path}")
 
     if points_arg:
         pts = parse_points(points_arg)
+    elif auto:
+        print(f"Detectando automáticamente esquinas para {image_path.name}...")
+        pts = auto_detect_corners(img)
+        print(f"Esquinas detectadas: {pts.tolist()}")
     else:
         pts = select_points_interactive(image_path)
 
-    img = cv2.imread(str(image_path))
     warped = warp_perspective_image(img, pts)
     warped_path = output_dir / f"{image_path.stem}_warped{image_path.suffix}"
     cv2.imwrite(str(warped_path), warped)
@@ -50,17 +57,18 @@ def main() -> None:
     parser.add_argument("-p", "--points", nargs=4, help="TL TR BR BL as x,y")
     parser.add_argument("-o", "--output", type=Path, default=Path("data/results"))
     parser.add_argument("--model", default=str(DEFAULT_MODEL))
+    parser.add_argument("--auto", action="store_true", help="Detectar automáticamente esquinas del estante")
     args = parser.parse_args()
 
     if args.image:
-        detections = process(args.image, args.points, args.output, args.model)
+        detections = process(args.image, args.points, args.output, args.model, auto=args.auto)
         print(json.dumps(detections, indent=2, ensure_ascii=False))
     else:
         images = [p for p in args.dir.iterdir() if p.suffix.lower() in IMAGE_EXTS]
         for img in sorted(images):
             print(f"\n--- {img.name} ---")
             try:
-                process(img, args.points, args.output, args.model)
+                process(img, args.points, args.output, args.model, auto=args.auto)
             except Exception as e:
                 print(f"  Error: {e}")
 
