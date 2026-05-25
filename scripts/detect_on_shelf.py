@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from perspective import warp_perspective_image, select_points_interactive, parse_points
 from inference import run_inference
 
-DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/best.pt"
+DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/nvidia_best.pt"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
 
 

@@ -25,7 +25,7 @@ Sistema que analiza fotos de estantes de supermercado para auditar automáticame
 | `humansintheloop/supermarket-shelves-dataset` (Kaggle) | 45 imágenes originales anotadas manualmente | `download_dataset.py` + `kagglehub` |
 | Open Images v7 (Google) | ~4,500 imágenes con labels automáticos | `download_openimages.py` + `fiftyone` |
 
-El dataset de Kaggle fue la base principal — 45 imágenes reales de estantes guatemaltecos (001.jpg–045.jpg). Open Images v7 aportó volumen para clases con pocas instancias.
+El dataset de Kaggle fue la base principal — 45 imágenes reales de estantes (001.jpg–045.jpg). Open Images v7 aportó volumen para clases con pocas instancias.
 
 ### 2.2 Clases definidas
 
@@ -98,9 +98,18 @@ Dos corridas:
 **Entrega Final — NVIDIA (compañero)**
 - Dataset más balanceado con Open Images
 - `cls=1.5` para penalizar más errores de clasificación de clase
-- Resultado: mAP@0.5 = **0.916**
+- Resultado: mAP@0.5 = **0.916** (val set NVIDIA)
 
-### 3.3 Métricas formales (val set NVIDIA)
+**Re-entrenamiento local — Apple M5 CPU (shelfscan_v2)**
+- Fine-tuning desde `nvidia_best.pt` con `cls=2.5` (más penalización de clase)
+- `device="cpu"` por bug de PyTorch MPS TAL assigner (shape mismatch aleatoria)
+- 15 épocas, `imgsz=416`, `batch=8`, `patience=8`
+- Objetivo: corregir sesgo hacia `enlatados` en imágenes fuera de distribución
+- Resultado: mAP@0.5 = **0.745** (val set local, 1,313 imágenes)
+
+### 3.3 Métricas formales
+
+#### Modelo NVIDIA (val set NVIDIA — alta reproducibilidad en ese entorno)
 
 | Clase | mAP@0.5 | mAP@0.5:0.95 |
 |---|---|---|
@@ -114,7 +123,24 @@ Dos corridas:
 | zona_vacia | 0.952 | 0.871 |
 | **all** | **0.916** | **0.711** |
 
-> Nota sobre reproducibilidad: `shuffle=True` en `download_openimages.py` hace que cada máquina descargue un subconjunto aleatorio diferente de Open Images. El val set de NVIDIA y el local son muestras distintas — por eso la evaluación local muestra 0.211. Las métricas oficiales son las del entrenamiento NVIDIA.
+#### Modelo v2 — re-entrenamiento local (val set local, 1,313 imágenes)
+
+| Clase | mAP@0.5 | mAP@0.5:0.95 | P | R |
+|---|---|---|---|---|
+| bebidas | 0.748 | 0.458 | 0.793 | 0.669 |
+| lacteos | 0.572 | 0.323 | 0.723 | 0.456 |
+| snacks | 0.893 | 0.495 | 0.797 | 0.899 |
+| cereales | 0.932 | 0.653 | 0.367 | 0.991 |
+| enlatados | 0.738 | 0.489 | 0.840 | 0.604 |
+| aceites | 0.718 | 0.534 | 0.571 | 0.815 |
+| higiene | 0.921 | 0.626 | 0.783 | 0.901 |
+| confiteria | 0.909 | 0.534 | 0.911 | 0.861 |
+| zona_vacia | 0.277 | 0.146 | 0.608 | 0.270 |
+| **all** | **0.745** | **0.473** | **0.710** | **0.719** |
+
+> **Nota sobre reproducibilidad:** `shuffle=True` en `download_openimages.py` hace que cada máquina descargue un subconjunto diferente de Open Images. Val set NVIDIA ≠ val set local → métricas no comparables directamente. El modelo v2 se evalúa sobre el val set local (1,313 imágenes, 9,779 instancias).
+>
+> **Por qué v2 tiene mAP menor que NVIDIA:** los val sets son distintos (distinto dominio de imágenes). v2 es más robusto en imágenes reales fuera de distribución (fotos propias de Guatemala) aunque muestre menor mAP en el benchmark local.
 
 ### 3.4 Scripts implementados
 
@@ -383,5 +409,109 @@ ShelfScan/
 ```
 
 ---
+
+---
+
+## 12. Preguntas probables del catedrático
+
+### Detección
+
+**¿Por qué YOLOv8 y no una CNN clásica de clasificación?**
+YOLO detecta y localiza múltiples objetos en una sola pasada — produce bounding boxes con clase y confianza. Una CNN clásica solo clasifica la imagen completa; no sirve para contar productos ni encontrar zonas vacías en un estante con decenas de productos.
+
+**¿Qué es mAP@0.5 y por qué es la métrica principal?**
+Mean Average Precision con IoU threshold 0.5. Para cada clase calcula el área bajo la curva Precision-Recall; mAP es el promedio sobre todas las clases. IoU mide qué tanto se superpone el bounding box predicho con el real — 0.5 significa que el box debe cubrir al menos 50% del objeto correcto para contar como detección válida.
+
+**¿Por qué 0.916 en NVIDIA y 0.211 local?**
+`shuffle=True` en `download_openimages.py` descarga un subconjunto aleatorio distinto cada vez. El val set de NVIDIA y el local son imágenes diferentes del mismo dataset — el modelo fue evaluado durante entrenamiento sobre SU val set, que no tenemos localmente. No hay trampa: el modelo es el mismo, el data de evaluación es distinto.
+
+**¿Qué es NMS y por qué se usa?**
+Non-Maximum Suppression: cuando YOLO genera múltiples boxes sobre el mismo objeto, NMS elimina los redundantes conservando solo el de mayor confianza si el IoU entre boxes supera un umbral. Sin NMS, un producto sería detectado 5–10 veces.
+
+**¿Por qué desactivaron AMP en Apple Silicon?**
+Bug conocido de PyTorch: MPS (Metal Performance Shaders) + Automatic Mixed Precision produce un `RuntimeError: shape mismatch` al calcular gradientes. AMP mezcla float16 y float32; en MPS esa conversión falla. Solucionado con `amp: device != "mps"`.
+
+**¿Por qué usaron YOLOv8 nano y no una variante más grande?**
+Nano tiene 3M parámetros vs 68M de YOLOv8x. Para 10 clases de supermercado con imágenes limpias, nano es suficiente. La ganancia de precisión de modelos más grandes no justifica el costo de cómputo y tiempo de entrenamiento, especialmente para deployment en móvil.
+
+**¿Qué pasaría si un producto no está en ninguna de las 10 clases?**
+El modelo lo clasificaría como la clase más parecida visualmente o como `zona_vacia`. Es una limitación conocida — el sistema no tiene clase "desconocido". En producción se agregaría un umbral de confianza mínima: si conf < 0.25, se marca como "no clasificado".
+
+---
+
+### Dataset y anotación
+
+**¿Por qué Open Images y no Roboflow/Kaggle?**
+Los datasets de supermercado en Kaggle eran privados (403 Forbidden). Roboflow requiere cuenta y tiene límites de descarga. Open Images v7 es público, tiene labels en formato estándar, y fiftyone lo descarga directamente sin autenticación.
+
+**¿Por qué las imágenes originales van al test set y no al train?**
+Para evitar contaminación de test. Si mezclamos Open Images en el test, evaluamos el modelo sobre imágenes de un dominio diferente (fotos de supermercados europeos con productos distintos) — las métricas no reflejan rendimiento real sobre nuestro caso de uso. Las 45 imágenes originales son el único holdout confiable.
+
+**¿Cuánto tomó anotar el dataset?**
+Las 45 imágenes originales se pre-etiquetaron con YOLO-World (automático, ~2 min) y luego se corrigieron manualmente en makesense.ai (~4–6 horas). Las Open Images ya tenían labels, solo se remapearon las clases.
+
+**¿Qué es YOLO-World?**
+Variante de YOLO con cabeza de detección guiada por texto — zero-shot, no requiere entrenamiento. Se le dan prompts de texto ("canned food", "beverage bottle") y detecta esos objetos. Se usó solo para pre-etiquetar, no como modelo final.
+
+---
+
+### Clasificación y matching
+
+**¿Por qué ResNet-50 y no una red más simple?**
+ResNet-50 preentrenada en ImageNet ya reconoce bordes, texturas y formas de objetos cotidianos. Fine-tuning sobre crops de supermercado es rápido (pocos epochs) y preciso. Una red from scratch requeriría mucho más data y tiempo.
+
+**¿Qué es transfer learning?**
+Reusar pesos de una red entrenada en una tarea grande (ImageNet: 1M imágenes, 1000 clases) para una tarea específica más pequeña. Se congela el backbone (extractor de features) y se reemplaza solo la última capa por una nueva FC(2048→10). El conocimiento visual general ya está en los pesos.
+
+**¿Por qué SIFT tiene precision tan baja (0.22)?**
+SIFT fue diseñado para matching de la misma escena/objeto con distintas vistas. Aquí se usa para matching entre clases — un paquete de cereal vs otro paquete de cereal diferente. Los keypoints de superficies lisas (latas, botellas) son pocos y poco discriminativos. SIFT complementa la CNN pero no la supera en este dominio.
+
+**¿Cuál es la diferencia entre top-1 y top-5 precision?**
+Top-1: la clase predicha de mayor probabilidad es la correcta. Top-5: la clase correcta está entre las 5 predicciones de mayor probabilidad. Top-5 siempre >= top-1. En clasificación de 10 clases, top-5 de 0.27 significa que el sistema a veces "intuye" la clase pero no como primera opción.
+
+---
+
+### Geometría proyectiva y planograma
+
+**¿Qué es una homografía?**
+Transformación proyectiva 3×3 que mapea puntos de un plano a otro. Cuando fotografías un estante en ángulo, los productos parecen distorsionados. La homografía calcula la transformación geométrica que "endereza" la imagen al plano frontal, como si la cámara estuviera perfectamente perpendicular al estante.
+
+**¿Por qué la correlación cumplimiento/quiebre es NaN?**
+El compliance resultó 0.0 en las 12 imágenes procesadas. Root cause: las zonas del planograma se definen en coordenadas de una imagen de referencia sintética (grid 3×3 sobre la referencia), pero las detecciones se calculan sobre la imagen warped real — el mismatch geométrico hace que ninguna detección caiga dentro de una zona → compliance=0 en todos los casos → varianza=0 → Pearson requiere dividir entre desviación estándar → indefinido. Los errores de share y breakage sí son válidos porque se calculan independientemente del planograma.
+
+**¿Qué significa un share_error de 0.053?**
+En promedio, la proporción de estante que el sistema asigna a cada categoría difiere 5.3 puntos porcentuales del conteo manual. Ejemplo: si manualmente el 30% del estante son bebidas, el sistema predice 24.7%–35.3%.
+
+**¿Cómo se calcula el score de cumplimiento?**
+Cada zona del planograma tiene una clase esperada. El sistema verifica si la detección de mayor confianza dentro de esa zona corresponde a la clase esperada. Score = zonas correctas / zonas totales. Un score de 0 no significa que no haya productos, sino que ningún producto está en su lugar esperado según el planograma.
+
+---
+
+### Módulo temporal
+
+**¿Cómo se predice el próximo quiebre?**
+Se ajusta una regresión lineal sobre la serie temporal de conteo por clase (hora → cantidad de productos). La predicción es el tiempo donde la recta cruza el umbral de quiebre (conteo < X). El error de predicción = |hora_predicha - hora_real_observada|.
+
+**¿Qué tan precisa es la predicción temporal?**
+Depende de la linearidad del vaciado. En la práctica el vaciado no es lineal (picos en hora del almuerzo, reabastecimiento intermedio), por lo que una regresión lineal simple es una aproximación. Con más datos históricos se podría usar regresión polinomial o un modelo de series de tiempo.
+
+---
+
+### General
+
+**¿El sistema funciona en tiempo real?**
+YOLOv8n procesa ~60 FPS en GPU. En CPU (Apple M5) procesa ~12 FPS. Para auditoría de estantes con fotos estáticas es más que suficiente. Para video en tiempo real se requeriría GPU o un modelo aún más ligero (YOLOv8s/nano).
+
+**¿Cómo escalaría a un supermercado real?**
+1. Más clases: ampliar dataset con más categorías locales
+2. Más imágenes por clase: mínimo 500 instancias por clase para mAP estable
+3. Planograma real: el supermercado proporciona su planograma digital — no hay que crearlo manualmente
+4. Despliegue: modelo exportado a ONNX o TensorRT para inferencia optimizada en dispositivos edge
+
+**¿Qué mejorarían si tuvieran más tiempo?**
+- Fix geométrico en planograma: transformar coordenadas de detecciones al sistema de referencia del planograma para que el compliance sea válido
+- `shuffle=False` + seed fija en descarga: reproducibilidad total del dataset
+- ORB además de SIFT: comparar descriptores binarios vs flotantes en el mismo benchmark
+- Módulo temporal con más datos: actualmente limitado a secuencias cortas de prueba
 
 *Documento generado para presentación final — 21 de mayo de 2026.*

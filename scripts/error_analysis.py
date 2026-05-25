@@ -32,7 +32,7 @@ except ImportError:
 sys.path.insert(0, str(Path(__file__).parent))
 from categories import CLASS_NAMES
 
-DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/best.pt"
+DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/nvidia_best.pt"
 TEST_DIR = Path("data/augmented/images/test")
 OUT_DIR = Path("data/results/error_analysis")
 

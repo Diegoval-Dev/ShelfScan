@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from categories import CATEGORIES, CLASS_NAMES
 
 DATA_YAML = Path("data/dataset.yaml").resolve()
-DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/best.pt"
+DEFAULT_MODEL = Path(__file__).resolve().parent.parent / "models/shelfscan_v1/weights/nvidia_best.pt"
 
 
 def evaluate(model_path: str, iou: float, conf: float, split: str) -> None:
